@@ -12,7 +12,20 @@ import {
   SidebarSeparator,
   SidebarFooter,
 } from "@/components/ui/sidebar"
-import { Users, Settings, LogOut, LayoutDashboard, FileText } from "lucide-react"
+import {
+  Users,
+  Settings,
+  LogOut,
+  LayoutDashboard,
+  FileText,
+  Building2,
+  Calendar,
+  ListChecks,
+  Stethoscope,
+  Handshake,
+  Menu,
+  DollarSign,
+} from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 
 export function AdminSidebar() {
@@ -24,7 +37,7 @@ export function AdminSidebar() {
   return (
     <>
       <SidebarHeader className="p-4">
-        <Link to="/admin/dashboard" className="text-xl font-bold text-primary-foreground">
+        <Link to="/admin/dashboard" className="text-xl text-black font-bold">
           Admin Panel
         </Link>
       </SidebarHeader>
@@ -42,41 +55,101 @@ export function AdminSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               {(isAdmin || isEditor) && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <Link to="/admin/posts">
-                      <FileText />
-                      <span>Posts</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                <>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <Link to="/admin/articles">
+                        <FileText />
+                        <span>Articles</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <Link to="/admin/departments">
+                        <Building2 />
+                        <span>Departments</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <Link to="/admin/categories">
+                        <ListChecks />
+                        <span>Categories</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <Link to="/admin/doctors">
+                        <Stethoscope />
+                        <span>Doctors</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <Link to="/admin/services">
+                        <Handshake />
+                        <span>Services</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <Link to="/admin/service-prices">
+                        <DollarSign />
+                        <span>Service Prices</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <Link to="/admin/menus">
+                        <Menu />
+                        <span>Menus</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </>
               )}
               {isAdmin && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <Link to="/admin/users">
-                      <Users />
-                      <span>Users</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                <>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <Link to="/admin/appointments">
+                        <Calendar />
+                        <span>Appointments</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <Link to="/admin/users">
+                        <Users />
+                        <span>Users</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </>
               )}
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/admin/settings">
-                    <Settings />
-                    <span>Settings</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarSeparator />
         <SidebarGroup>
-          <SidebarGroupLabel>Account</SidebarGroupLabel>
+          <SidebarGroupLabel>Settings</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link to="/admin/settings">
+                    <Settings />
+                    <span>Account Settings</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton onClick={logout}>
                   <LogOut />

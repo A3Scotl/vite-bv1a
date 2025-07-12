@@ -1,3 +1,4 @@
+"use client"
 import { createContext, useState, useEffect, useCallback } from "react"
 import { login as apiLogin, logout as apiLogout } from "@/lib/api"
 

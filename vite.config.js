@@ -8,6 +8,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
+      // Sửa lỗi: Thay __dirname bằng path.dirname(import.meta.url)
       "@": path.resolve(__dirname, "./src"),
     },
   },

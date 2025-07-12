@@ -45,7 +45,7 @@ export function LoginForm() {
               <Label htmlFor="username">Username</Label>
               <Input
                 id="username"
-                placeholder="Enter your username"
+                placeholder="Enter your username - (admin)"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
@@ -56,7 +56,7 @@ export function LoginForm() {
               <Input
                 id="password"
                 type="password"
-                placeholder="Enter your password"
+                placeholder="Enter your password - (password)"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required

@@ -1,16 +1,26 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
-import  {AuthProvider}  from "@/context/auth-context";
-import  {ClientLayout}  from "@/layouts/client-layout"
-import  {AdminLayout}  from "@/layouts/admin-layout"
-import  {HomePage}  from "@/routes/client/home-page"
-import  {LoginPage}  from "@/routes/auth/login-page"
-import  {DashboardPage}  from "@/routes/admin/dashboard-page"
-import  {UsersPage}  from "@/routes/admin/users-page"
-import  {ProtectedRoute}  from "@/routes/protected-route"
+import { AuthProvider } from "@/context/auth-context"
+import { ClientLayout } from "@/layouts/client-layout"
+import { AdminLayout } from "@/layouts/admin-layout"
+import { HomePage } from "@/routes/client/home-page"
+import { LoginPage } from "@/routes/auth/login-page"
+import { OverviewPage } from "@/routes/admin/overview-page"  
+import { ArticlesPage } from "@/routes/admin/articles-page"  
+import { DepartmentsPage } from "@/routes/admin/departments-page"  
+import { AppointmentsPage } from "@/routes/admin/appointments-page"  
+import { CategoriesPage } from "@/routes/admin/categories-page"  
+import { DoctorsPage } from "@/routes/admin/doctors-page"  
+import { ServicesPage } from "@/routes/admin/services-page"  
+import { ServicePricesPage } from "@/routes/admin/service-prices-page"  
+import { MenusPage } from "@/routes/admin/menus-page"  
+import { UsersPage } from "@/routes/admin/users-page"
+import { SettingsPage } from "@/routes/admin/settings-page"  
+import { ProtectedRoute } from "@/routes/protected-route"
 
 function App() {
   return (
     <Router>
+
       <AuthProvider>
         <Routes>
           {/* Client Routes */}
@@ -27,10 +37,19 @@ function App() {
           {/* Admin Routes - Protected */}
           <Route path="/admin" element={<ProtectedRoute allowedRoles={["ROLE_ADMIN", "ROLE_EDITOR"]} />}>
             <Route element={<AdminLayout />}>
-              <Route path="dashboard" element={<DashboardPage />} />
-              <Route path="posts" element={<div>Admin Posts Page</div>} />
-              <Route path="settings" element={<div>Admin Settings Page</div>} />
-              {/* Route chỉ dành cho ADMIN */}
+              <Route path="dashboard" element={<OverviewPage />} /> 
+              <Route path="articles" element={<ArticlesPage />} />
+              <Route path="departments" element={<DepartmentsPage />} />
+              <Route path="categories" element={<CategoriesPage />} />
+              <Route path="doctors" element={<DoctorsPage />} />
+              <Route path="services" element={<ServicesPage />} />
+              <Route path="service-prices" element={<ServicePricesPage />} />
+              <Route path="menus" element={<MenusPage />} />
+              <Route path="settings" element={<SettingsPage />} />
+              {/* Routes chỉ dành cho ADMIN */}
+              <Route path="appointments" element={<ProtectedRoute allowedRoles={["ROLE_ADMIN"]} />}>
+                <Route index element={<AppointmentsPage />} />
+              </Route>
               <Route path="users" element={<ProtectedRoute allowedRoles={["ROLE_ADMIN"]} />}>
                 <Route index element={<UsersPage />} />
               </Route>

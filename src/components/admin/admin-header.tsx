@@ -34,7 +34,7 @@ export function AdminHeader() {
               <AvatarImage src="/placeholder-user.jpg" alt="User Avatar" />
               <AvatarFallback>{user?.username ? user.username.charAt(0).toUpperCase() : "U"}</AvatarFallback>
             </Avatar>
-            <span className="sr-only">Toggle user menu</span>
+            <span className="sr-only text-black">Toggle user menu</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
