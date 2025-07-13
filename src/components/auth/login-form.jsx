@@ -9,7 +9,7 @@ import { useAuth } from "@/hooks/use-auth"
 import { useNavigate } from "react-router-dom"
 
 export function LoginForm() {
-  const [username, setUsername] = useState("")
+  const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const { login, isLoading } = useAuth()
@@ -19,14 +19,14 @@ export function LoginForm() {
     e.preventDefault()
     setError("")
 
-    if (!username || !password) {
-      setError("Please enter both username and password.")
+    if (!email || !password) {
+      setError("Please enter both email and password.")
       return
     }
 
-    const result = await login(username, password)
+    const result = await login(email, password)
     if (result.success) {
-      navigate("/admin/dashboard") // Chuyển hướng đến dashboard sau khi đăng nhập thành công
+      navigate("/admin/dashboard")
     } else {
       setError(result.message || "Login failed. Please try again.")
     }
@@ -42,12 +42,13 @@ export function LoginForm() {
         <form onSubmit={handleSubmit}>
           <div className="grid w-full items-center gap-4">
             <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
-                id="username"
-                placeholder="Enter your username - (admin)"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                id="email"
+                type="email"
+                placeholder="Enter your email (e.g., admin@gmail.com)"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
@@ -56,7 +57,7 @@ export function LoginForm() {
               <Input
                 id="password"
                 type="password"
-                placeholder="Enter your password - (password)"
+                placeholder="Enter your password (e.g., admin)"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required

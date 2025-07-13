@@ -1,6 +1,6 @@
 "use client"
 import { createContext, useState, useEffect, useCallback } from "react"
-import { login as apiLogin, logout as apiLogout } from "@/lib/api"
+import { login as apiLogin, logout as apiLogout, fetchUserData } from "@/lib/api"
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext(null)
@@ -10,18 +10,23 @@ export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
-  // Hàm để kiểm tra trạng thái đăng nhập từ localStorage hoặc cookie
-  const checkAuthStatus = useCallback(() => {
+  const checkAuthStatus = useCallback(async () => {
     try {
       const storedUser = localStorage.getItem("user")
       const storedToken = localStorage.getItem("token")
       if (storedUser && storedToken) {
         const parsedUser = JSON.parse(storedUser)
-        setUser(parsedUser)
-        setIsAuthenticated(true)
+        const response = await fetchUserData(storedToken)
+        if (response.success) {
+          setUser(response.data)
+          setIsAuthenticated(true)
+        } else {
+          localStorage.removeItem("user")
+          localStorage.removeItem("token")
+        }
       }
     } catch (error) {
-      console.error("Failed to parse user from localStorage", error)
+      console.error("Failed to verify auth status:", error)
       localStorage.removeItem("user")
       localStorage.removeItem("token")
     } finally {
@@ -59,14 +64,14 @@ export function AuthProvider({ children }) {
   const logout = useCallback(async () => {
     setIsLoading(true)
     try {
-      await apiLogout() // Gọi API logout nếu có
-    } catch (error) {
-      console.error("Logout API call failed:", error)
-    } finally {
+      await apiLogout()
       setUser(null)
       setIsAuthenticated(false)
       localStorage.removeItem("user")
       localStorage.removeItem("token")
+    } catch (error) {
+      console.error("Logout failed:", error)
+    } finally {
       setIsLoading(false)
     }
   }, [])
@@ -79,7 +84,7 @@ export function AuthProvider({ children }) {
       const userRoles = user.roles.map((role) => role.toUpperCase())
       return requiredRoles.some((role) => userRoles.includes(role.toUpperCase()))
     },
-    [user],
+    [user]
   )
 
   const value = {

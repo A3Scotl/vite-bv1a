@@ -1,49 +1,72 @@
-// Hàm giả lập (mock) cho các cuộc gọi API
-// Khi có backend Spring, bạn sẽ thay thế logic này bằng các cuộc gọi fetch/axios thực tế
+import { jwtDecode } from "jwt-decode"; // Use named import
 
-const MOCK_USERS = {
-  admin: { username: "admin", roles: ["ROLE_ADMIN", "ROLE_EDITOR"], email: "admin@example.com" },
-  editor: { username: "editor", roles: ["ROLE_EDITOR"], email: "editor@example.com" },
-  user: { username: "user", roles: ["ROLE_USER"], email: "user@example.com" },
-}
+const API_BASE_URL = "http://localhost:8080/api/auth";
 
-export async function login(username, password) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      if (MOCK_USERS[username] && password === "password") {
-        // Giả lập mật khẩu là "password"
-        const user = MOCK_USERS[username]
-        const token = `mock-jwt-token-for-${username}`
-        resolve({ success: true, data: { user, token } })
-      } else {
-        resolve({ success: false, message: "Invalid username or password" })
-      }
-    }, 500) // Giả lập độ trễ mạng
-  })
+export async function login(email, password) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await response.json();
+    if (response.ok && data.success) {
+      const decodedToken = jwtDecode(data.data.token);
+      const role = decodedToken.role; // Giả định token có trường role
+      return {
+        success: true,
+        data: {
+          user: { email, roles: [role] },
+          token: data.data.token,
+        },
+      };
+    } else {
+      return { success: false, message: data.error || "Invalid email or password" };
+    }
+  } catch (error) {
+    console.error("Login API error:", error);
+    return { success: false, message: "An unexpected error occurred" };
+  }
 }
 
 export async function logout() {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({ success: true })
-    }, 200)
-  })
+  try {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_BASE_URL}/logout`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    });
+
+    if (response.ok) {
+      return { success: true };
+    } else {
+      return { success: false, message: "Logout failed" };
+    }
+  } catch (error) {
+    console.error("Logout API error:", error);
+    return { success: false, message: "An unexpected error occurred" };
+  }
 }
 
-// Ví dụ về một hàm API khác (có thể mở rộng sau này)
 export async function fetchUserData(token) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      if (token && token.startsWith("mock-jwt-token-for-")) {
-        const username = token.replace("mock-jwt-token-for-", "")
-        if (MOCK_USERS[username]) {
-          resolve({ success: true, data: MOCK_USERS[username] })
-        } else {
-          resolve({ success: false, message: "User not found" })
-        }
-      } else {
-        resolve({ success: false, message: "Invalid token" })
-      }
-    }, 300)
-  })
+  try {
+    const decodedToken = jwtDecode(token);
+    const email = decodedToken.sub; // Giả định email nằm trong trường 'sub'
+    const role = decodedToken.role; // Giả định token có trường role
+    return {
+      success: true,
+      data: { email, roles: [role] },
+    };
+  } catch (error) {
+    console.error("Fetch user data error:", error);
+    return { success: false, message: "An unexpected error occurred" };
+  }
 }
