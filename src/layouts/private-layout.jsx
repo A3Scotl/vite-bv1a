@@ -8,6 +8,9 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { ChevronDown, Bell, Search, Settings, LogOut, UserCircle } from "lucide-react"
+import {
+  Skeleton
+} from "@/components/ui/skeleton";
 
 const PrivateLayout = () => {
   const { user, loading, logout } = useAuth()
@@ -35,9 +38,6 @@ const PrivateLayout = () => {
           <div className="flex-1 flex items-center gap-4">
             <div className="flex-1">
               <h1 className="text-lg font-semibold tracking-tight">Dashboard</h1>
-              <p className="text-sm text-muted-foreground hidden sm:block">
-                Welcome back, {user?.name || 'User'}
-              </p>
             </div>
             
             {/* Desktop Search - Hidden on mobile */}
@@ -47,7 +47,7 @@ const PrivateLayout = () => {
                 <input
                   type="text"
                   placeholder="Search..."
-                  className="w-64 pl-10 pr-4 py-2 text-sm border border-border/40 rounded-lg bg-background/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-colors"
+                  className="w-64 pl-10 pr-4 py-2 text-sm border border-border/90 rounded-lg bg-background/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-colors"
                 />
               </div>
             </div>
@@ -64,12 +64,6 @@ const PrivateLayout = () => {
                   3
                 </Badge>
               </Button>
-
-              {/* Settings - Hidden on mobile */}
-              <Button variant="ghost" size="sm" className="hidden sm:flex p-2 hover:bg-accent rounded-lg">
-                <Settings className="w-4 h-4" />
-              </Button>
-
               {/* User Menu - Visible on all screens */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -104,7 +98,7 @@ const PrivateLayout = () => {
                       <UserCircle className="w-4 h-4" />
                       <span>Profile</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="flex items-center gap-2 p-2 cursor-pointer sm:hidden">
+                    <DropdownMenuItem className="flex items-center gap-2 p-2 cursor-pointer">
                       <Settings className="w-4 h-4" />
                       <span>Settings</span>
                     </DropdownMenuItem>
