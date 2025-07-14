@@ -1,36 +1,76 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useAuth } from "@/context/auth-context"
-import { useNavigate } from "react-router-dom"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/auth-context";
+import { loginApi } from "@/apis/auth-api";
+import { jwtDecode } from "jwt-decode";
+import LoadingPage from "@/pages/common/loading-page";
+import { toast } from "sonner";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 
 const Login = () => {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const { login } = useAuth()
-  const navigate = useNavigate()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e) => {
-    e.preventDefault()
-    // Simulate login with email and password
-    if (email === "admin@example.com" && password === "password") {
-      login({ name: "Admin User", email: email, role: "admin" })
-      navigate("/dashboard")
-    } else {
-      alert("Invalid credentials. Please use admin@example.com and password")
+  const { login, user } = useAuth();
+  const navigate = useNavigate();
+
+  // ⚠️ Nếu đã đăng nhập, chuyển hướng về dashboard
+  useEffect(() => {
+    if (user) {
+      navigate("/dashboard");
     }
-  }
+  }, [user]);
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const response = await loginApi({ email, password });
+
+    if (response.success) {
+      const token = response.token;
+      localStorage.setItem("token", token);
+
+      const decoded = jwtDecode(token);
+      const userData = {
+        email: decoded.sub,
+        role: decoded.role,
+        exp: decoded.exp,
+      };
+
+      login(userData);
+      toast.success(response.message);
+      navigate("/dashboard");
+    } else {
+      toast.error(response.message || "Đăng nhập thất bại");
+    }
+
+    setLoading(false);
+  };
+
+  if (loading) return <LoadingPage />;
 
   return (
     <div className="flex min-h-[calc(100vh-10rem)] items-center justify-center px-4 py-12">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">Login to Dashboard</CardTitle>
-          <CardDescription>Enter your email and password to access your account.</CardDescription>
+          <CardDescription>
+            Enter your email and password to access your account.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="grid gap-4">
@@ -39,7 +79,7 @@ const Login = () => {
               <Input
                 id="email"
                 type="email"
-                placeholder="admin@example.com"
+                placeholder="admin@gmail.com"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -50,7 +90,7 @@ const Login = () => {
               <Input
                 id="password"
                 type="password"
-                placeholder="password"
+                placeholder="******"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -63,7 +103,7 @@ const Login = () => {
         </CardContent>
       </Card>
     </div>
-  )
-}
+  );
+};
 
 export default Login;

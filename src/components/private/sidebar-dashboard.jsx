@@ -94,24 +94,24 @@ const mainMenuItems = [
   },
 ]
 
-const settingsMenuItems = [
-  {
-    title: "Settings",
-    url: "/dashboard/settings",
-    icon: Settings,
-    badge: null,
-  },
-]
+// const settingsMenuItems = [
+//   {
+//     title: "Settings",
+//     url: "/dashboard/settings",
+//     icon: Settings,
+//     badge: null,
+//   },
+// ]
 
 export function SidebarDashboard() {
-  const { user, logout } = useAuth()
+  // const { user, logout } = useAuth()
   const location = useLocation()
 
   const isActive = (url) => location.pathname === url
 
   return (
     <Sidebar className="border-r border-border/40 bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/60">
-      <SidebarHeader className="p-4 border-b border-border/40">
+      <SidebarHeader className="px-4 py-0 pt-2 border-b border-border/40">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
             <Building2 className="w-4 h-4 text-primary-foreground" />
@@ -125,18 +125,18 @@ export function SidebarDashboard() {
 
       <SidebarContent className="">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-xs font-medium text-muted-foreground/70 uppercase tracking-wider px-2 py-2">
+          <SidebarGroupLabel className="text-xs mb-4 font-medium text-muted-foreground/70 uppercase tracking-wider px-2 py-2">
             Main Navigation
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-1">
+            <SidebarMenu className="space-y-5">
               {mainMenuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <Link 
                       to={item.url}
                       className={`
-                        flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all
+                        flex items-center gap-3 px-3 py-4 rounded-lg text-sm font-medium transition-all
                         ${isActive(item.url) 
                           ? 'bg-primary/20 text-primary border-primary shadow-sm' 
                           : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
@@ -158,7 +158,7 @@ export function SidebarDashboard() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup>
+        {/* <SidebarGroup>
           <SidebarGroupLabel className="text-xs font-medium text-muted-foreground/70 uppercase tracking-wider px-2 py-2">
             Settings
           </SidebarGroupLabel>
@@ -185,10 +185,10 @@ export function SidebarDashboard() {
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
-        </SidebarGroup>
+        </SidebarGroup> */}
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-border/40">
+      {/* <SidebarFooter className="border-t border-border/40">
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
@@ -246,7 +246,7 @@ export function SidebarDashboard() {
             </DropdownMenu>
           </SidebarMenuItem>
         </SidebarMenu>
-      </SidebarFooter>
+      </SidebarFooter> */}
     </Sidebar>
   )
 }
