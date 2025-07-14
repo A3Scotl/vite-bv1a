@@ -1,4 +1,4 @@
-import { jwtDecode } from "jwt-decode"; // Use named import
+import { jwtDecode } from "jwt-decode"; 
 
 const API_BASE_URL = "http://localhost:8080/api/auth";
 
@@ -16,7 +16,7 @@ export async function login(email, password) {
     const data = await response.json();
     if (response.ok && data.success) {
       const decodedToken = jwtDecode(data.data.token);
-      const role = decodedToken.role; // Giả định token có trường role
+      const role = decodedToken.role; 
       return {
         success: true,
         data: {
@@ -59,8 +59,8 @@ export async function logout() {
 export async function fetchUserData(token) {
   try {
     const decodedToken = jwtDecode(token);
-    const email = decodedToken.sub; // Giả định email nằm trong trường 'sub'
-    const role = decodedToken.role; // Giả định token có trường role
+    const email = decodedToken.sub; 
+    const role = decodedToken.role; 
     return {
       success: true,
       data: { email, roles: [role] },

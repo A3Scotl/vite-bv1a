@@ -1,6 +1,6 @@
 "use client"
 import { createContext, useState, useEffect, useCallback } from "react"
-import { login as apiLogin, logout as apiLogout, fetchUserData } from "@/lib/api"
+import { login as apiLogin, logout as apiLogout, fetchUserData } from "@/apis/auth.js"
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext(null)
