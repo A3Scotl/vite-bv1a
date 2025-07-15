@@ -1,25 +1,52 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { toast } from "sonner"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { FileText, Plus, MoreHorizontal, Edit, Trash2, EyeOff, Eye, ImageIcon } from "lucide-react"
-import { articleApi } from "@/apis/article-api"
-import LoadingPage from "@/pages/common/loading-page"
-import { EditModal } from "@/components/common/edit-modal"
-import ContentEditModal from "@/components/common/content-edit-modal"
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  FileText,
+  Plus,
+  MoreHorizontal,
+  Edit,
+  Trash2,
+  EyeOff,
+  Eye,
+  ImageIcon,
+} from "lucide-react";
+import { articleApi } from "@/apis/article-api";
+import LoadingPage from "@/pages/common/loading-page";
+import ContentEditModal from "@/components/common/content-edit-modal";
 
 const ArticlesPage = () => {
-  const [articles, setArticles] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [isSheetOpen, setIsSheetOpen] = useState(false)
-  const [currentArticle, setCurrentArticle] = useState(null)
+  const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [isContentModalOpen, setIsContentModalOpen] = useState(false);
+  const [currentArticle, setCurrentArticle] = useState(null);
   const [formState, setFormState] = useState({
     title: "",
     slug: "",
@@ -27,33 +54,33 @@ const ArticlesPage = () => {
     thumbnailFile: null,
     thumbnailUrl: "",
     active: true,
-  })
+  });
 
   useEffect(() => {
-    fetchArticles()
-  }, [])
+    fetchArticles();
+  }, []);
 
   const fetchArticles = async () => {
-    setLoading(true)
-    const response = await articleApi.getAll()
+    setLoading(true);
+    const response = await articleApi.getAll();
     if (response.success) {
-      setArticles(response.data)
+      setArticles(response.data);
     } else {
-      toast.error("Failed to fetch articles: " + response.message)
+      toast.error("Failed to fetch articles: " + response.message);
     }
-    setLoading(false)
-  }
+    setLoading(false);
+  };
 
   const handleInputChange = (e) => {
-    const { id, value, type, checked, files } = e.target
+    const { id, value, type, checked, files } = e.target;
     setFormState((prev) => ({
       ...prev,
       [id]: type === "checkbox" ? checked : files ? files[0] : value,
-    }))
-  }
+    }));
+  };
 
   const handleOpenSheet = (article = null) => {
-    setCurrentArticle(article)
+    setCurrentArticle(article);
     if (article) {
       setFormState({
         title: article.title,
@@ -62,7 +89,7 @@ const ArticlesPage = () => {
         thumbnailFile: null,
         thumbnailUrl: article.thumbnailUrl || "",
         active: article.active,
-      })
+      });
     } else {
       setFormState({
         title: "",
@@ -71,72 +98,77 @@ const ArticlesPage = () => {
         thumbnailFile: null,
         thumbnailUrl: "",
         active: true,
-      })
+      });
     }
-    setIsSheetOpen(true)
-  }
+    setIsSheetOpen(true);
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
 
-    const formData = new FormData()
-    formData.append("title", formState.title)
-    formData.append("slug", formState.slug)
-    formData.append("content", formState.content)
-    formData.append("active", formState.active)
+    const formData = new FormData();
+    formData.append("title", formState.title);
+    formData.append("slug", formState.slug);
+    formData.append("content", formState.content);
+    formData.append("active", formState.active);
     if (formState.thumbnailFile) {
-      formData.append("thumbnailFile", formState.thumbnailFile)
+      formData.append("thumbnailFile", formState.thumbnailFile);
     }
 
-    let response
+    let response;
     if (currentArticle) {
-      response = await articleApi.update(currentArticle.id, formData)
+      response = await articleApi.update(currentArticle.id, formData);
     } else {
-      response = await articleApi.create(formData)
+      response = await articleApi.create(formData);
     }
 
     if (response.success) {
-      toast.success(response.message)
-      setIsSheetOpen(false)
-      fetchArticles()
+      toast.success(response.message);
+      setIsSheetOpen(false);
+      fetchArticles();
     } else {
-      toast.error(response.message)
+      toast.error(response.message);
     }
-    setLoading(false)
-  }
+    setLoading(false);
+  };
 
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this article?")) {
-      setLoading(true)
-      const response = await articleApi.delete(id)
+      setLoading(true);
+      const response = await articleApi.delete(id);
       if (response.success) {
-        toast.success(response.message)
-        fetchArticles()
+        toast.success(response.message);
+        fetchArticles();
       } else {
-        toast.error(response.message)
+        toast.error(response.message);
       }
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleToggleActive = async (id, currentActive) => {
-    setLoading(true)
-    const response = await articleApi.hide(id)
+    setLoading(true);
+    const response = await articleApi.hide(id);
     if (response.success) {
-      toast.success(response.message)
-      fetchArticles()
+      toast.success(response.message);
+      fetchArticles();
     } else {
-      toast.error(response.message)
+      toast.error(response.message);
     }
-    setLoading(false)
-  }
+    setLoading(false);
+  };
 
   const handleContentSave = (newContent) => {
-    setFormState((prev) => ({ ...prev, content: newContent }))
-  }
+    setFormState((prev) => ({ ...prev, content: newContent }));
+    setIsContentModalOpen(false);
+  };
 
-  if (loading && !articles.length) return <LoadingPage />
+  const handleContentClose = () => {
+    setIsContentModalOpen(false);
+  };
+
+  if (loading && !articles.length) return <LoadingPage />;
 
   return (
     <div className="space-y-6">
@@ -150,7 +182,9 @@ const ArticlesPage = () => {
             <Plus className="w-4 h-4 mr-2" /> Add New Article
           </Button>
         </CardHeader>
-        <CardDescription className="px-6">Create, edit, and publish articles for your website.</CardDescription>
+        <CardDescription className="px-6">
+          Create, edit, and publish articles for your website.
+        </CardDescription>
         <CardContent className="pt-4">
           <div className="overflow-x-auto">
             <Table>
@@ -168,7 +202,9 @@ const ArticlesPage = () => {
                 {articles.length > 0 ? (
                   articles.map((article) => (
                     <TableRow key={article.id}>
-                      <TableCell className="font-medium">{article.id}</TableCell>
+                      <TableCell className="font-medium">
+                        {article.id}
+                      </TableCell>
                       <TableCell>{article.title}</TableCell>
                       <TableCell>{article.slug}</TableCell>
                       <TableCell>
@@ -198,10 +234,16 @@ const ArticlesPage = () => {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleOpenSheet(article)}>
+                            <DropdownMenuItem
+                              onClick={() => handleOpenSheet(article)}
+                            >
                               <Edit className="w-4 h-4 mr-2" /> Edit
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleToggleActive(article.id, article.active)}>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                handleToggleActive(article.id, article.active)
+                              }
+                            >
                               {article.active ? (
                                 <>
                                   <EyeOff className="w-4 h-4 mr-2" /> Hide
@@ -212,7 +254,10 @@ const ArticlesPage = () => {
                                 </>
                               )}
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDelete(article.id)} className="text-red-600">
+                            <DropdownMenuItem
+                              onClick={() => handleDelete(article.id)}
+                              className="text-red-600"
+                            >
                               <Trash2 className="w-4 h-4 mr-2" /> Delete
                             </DropdownMenuItem>
                           </DropdownMenuContent>
@@ -233,56 +278,100 @@ const ArticlesPage = () => {
         </CardContent>
       </Card>
 
-      <EditModal
-        className=""
-        isOpen={isSheetOpen}
-        onOpenChange={setIsSheetOpen}
-        title={currentArticle ? "Edit Article" : "Add New Article"}
-        description={
-          currentArticle
-            ? "Make changes to the article here. Click save when you're done."
-            : "Add a new article. Click save when you're done."
-        }
-      >
-        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-          <div className="grid gap-2">
-            <Label htmlFor="title">Title</Label>
-            <Input id="title" value={formState.title} onChange={handleInputChange} required />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="slug">Slug</Label>
-            <Input id="slug" value={formState.slug} onChange={handleInputChange} required />
-          </div>
-          <div className="grid gap-2">
-            <Label>Content</Label>
-            <ContentEditModal content={formState.content} onSave={handleContentSave} />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="thumbnailFile">Thumbnail Image</Label>
-            <Input id="thumbnailFile" type="file" onChange={handleInputChange} accept="image/*" />
-            {formState.thumbnailUrl && !formState.thumbnailFile && (
-              <img
-                src={formState.thumbnailUrl || "/placeholder.svg"}
-                alt="Current Thumbnail"
-                className="w-24 h-24 object-cover rounded-md mt-2"
-              />
-            )}
-          </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="active"
-              checked={formState.active}
-              onCheckedChange={(checked) => setFormState((prev) => ({ ...prev, active: checked }))}
-            />
-            <Label htmlFor="active">Active</Label>
-          </div>
-          <Button type="submit" disabled={loading}>
-            {loading ? "Saving..." : "Save changes"}
-          </Button>
-        </form>
-      </EditModal>
-    </div>
-  )
-}
+      {isSheetOpen && (
+        <div className="fixed inset-0 z-1000 bg-black/50 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg shadow-2xl w-[90vw] max-w-[90vw] h-[95vh] overflow-auto">
+            <h2 className="text-xl font-semibold mb-4">
+              {currentArticle ? "Edit Article" : "Add New Article"}
+            </h2>
+            <p className="text-sm text-gray-600 mb-6">
+              {currentArticle
+                ? "Make changes to the article here. Click save when you're done."
+                : "Add a new article. Click save when you're done."}
+            </p>
+            <form onSubmit={handleSubmit} className="grid gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="title">Title</Label>
+                <Input
+                  id="title"
+                  value={formState.title}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="slug">Slug</Label>
+                <Input
+                  id="slug"
+                  value={formState.slug}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label>Content</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full mb-2 flex items-center gap-2"
+                  onClick={() => setIsContentModalOpen(true)}
+                >
+                  <FileText className="w-4 h-4" />
+                  Edit Content
+                </Button>
 
-export default ArticlesPage
+                <ContentEditModal
+                  content={formState.content}
+                  onSave={handleContentSave}
+                  isOpen={isContentModalOpen}
+                  onClose={handleContentClose}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="thumbnailFile">Thumbnail Image</Label>
+                <Input
+                  id="thumbnailFile"
+                  type="file"
+                  onChange={handleInputChange}
+                  accept="image/*"
+                />
+                {formState.thumbnailUrl && !formState.thumbnailFile && (
+                  <img
+                    src={formState.thumbnailUrl || "/placeholder.svg"}
+                    alt="Current Thumbnail"
+                    className="w-24 h-24 object-cover rounded-md mt-2"
+                  />
+                )}
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="active"
+                  checked={formState.active}
+                  onCheckedChange={(checked) =>
+                    setFormState((prev) => ({ ...prev, active: !!checked }))
+                  }
+                />
+                <Label htmlFor="active">Active</Label>
+              </div>
+              <div className="flex justify-end gap-4 mt-6">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsSheetOpen(false)}
+                  className="bg-gray-100 hover:bg-gray-200"
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={loading}>
+                  {loading ? "Saving..." : "Save changes"}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ArticlesPage;
