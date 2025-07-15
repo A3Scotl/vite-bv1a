@@ -13,6 +13,7 @@ import { Menu, Plus, MoreHorizontal, Edit, Trash2, EyeOff, Eye } from "lucide-re
 import { menuApi } from "@/apis/menu-api"
 import LoadingPage from "@/pages/common/loading-page"
 import { EditModal } from "@/components/common/edit-modal" 
+import { handleFetch } from "../../utils/fetch-helper"
 
 const MenusPage = () => {
   const [menus, setMenus] = useState([])
@@ -32,14 +33,12 @@ const MenusPage = () => {
   }, [])
 
   const fetchMenus = async () => {
-    setLoading(true)
-    const response = await menuApi.getAll()
-    if (response.success) {
-      setMenus(response.data)
-    } else {
-      toast.error("Failed to fetch menus: " + response.message)
-    }
-    setLoading(false)
+    handleFetch({
+      apiCall:menuApi.getAll,
+      setData:setMenus,
+      setLoading,
+      errorMessage: "Failed to fetch department",
+    })
   }
 
   const handleInputChange = (e) => {

@@ -13,6 +13,7 @@ import { Package, Plus, MoreHorizontal, Edit, Trash2, EyeOff, Eye } from "lucide
 import { categoryApi } from "@/apis/category-api"
 import LoadingPage from "@/pages/common/loading-page"
 import { EditModal } from "@/components/common/edit-modal" 
+import { handleFetch } from "@/utils/fetch-helper";
 
 const CategoriesPage = () => {
   const [categories, setCategories] = useState([])
@@ -30,14 +31,12 @@ const CategoriesPage = () => {
   }, [])
 
   const fetchCategories = async () => {
-    setLoading(true)
-    const response = await categoryApi.getAll()
-    if (response.success) {
-      setCategories(response.data)
-    } else {
-      toast.error("Failed to fetch categories: " + response.message)
-    }
-    setLoading(false)
+    handleFetch({
+        apiCall: categories.getAll,
+        setData: setCategories,
+        setLoading,
+        errorMessage: "Failed to fetch categories",
+      });
   }
 
   const handleInputChange = (e) => {
@@ -72,6 +71,7 @@ const CategoriesPage = () => {
     let response
     if (currentCategory) {
       response = await categoryApi.update(currentCategory.id, formState)
+      console.log(formState);
     } else {
       response = await categoryApi.create(formState)
     }
@@ -100,9 +100,9 @@ const CategoriesPage = () => {
     }
   }
 
-  const handleToggleActive = async (id, currentActive) => {
+  const handleToggleActive = async (id) => {
     setLoading(true)
-    const response = await categoryApi.hide(id) // Assuming hide toggles active status
+    const response = await categoryApi.hide(id)
     if (response.success) {
       toast.success(response.message)
       fetchCategories()

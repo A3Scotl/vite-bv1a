@@ -1,4 +1,4 @@
-import AxiosInstance from "@/util/axios-instance";
+import AxiosInstance from "@/utils/axios-instance";
 
 /**
  * Gửi yêu cầu đăng nhập

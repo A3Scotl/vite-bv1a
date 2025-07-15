@@ -41,6 +41,7 @@ import { articleApi } from "@/apis/article-api";
 import LoadingPage from "@/pages/common/loading-page";
 import ContentEditModal from "@/components/common/content-edit-modal";
 import { EditModal } from "@/components/common/edit-modal";
+import { handleFetch } from "@/utils/fetch-helper";
 
 const ArticlesPage = () => {
   const [articles, setArticles] = useState([]);
@@ -62,14 +63,12 @@ const ArticlesPage = () => {
   }, []);
 
   const fetchArticles = async () => {
-    setLoading(true);
-    const response = await articleApi.getAll();
-    if (response.success) {
-      setArticles(response.data);
-    } else {
-      toast.error("Failed to fetch articles: " + response.message);
-    }
-    setLoading(false);
+    handleFetch({
+        apiCall: articleApi.getAll,
+        setData: setArticles,
+        setLoading,
+        errorMessage: "Failed to fetch articles",
+      });
   };
 
   const handleInputChange = (e) => {
