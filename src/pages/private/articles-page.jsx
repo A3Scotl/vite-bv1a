@@ -40,6 +40,7 @@ import {
 import { articleApi } from "@/apis/article-api";
 import LoadingPage from "@/pages/common/loading-page";
 import ContentEditModal from "@/components/common/content-edit-modal";
+import { EditModal } from "@/components/common/edit-modal";
 
 const ArticlesPage = () => {
   const [articles, setArticles] = useState([]);
@@ -116,12 +117,9 @@ const ArticlesPage = () => {
       formData.append("thumbnailFile", formState.thumbnailFile);
     }
 
-    let response;
-    if (currentArticle) {
-      response = await articleApi.update(currentArticle.id, formData);
-    } else {
-      response = await articleApi.create(formData);
-    }
+    const response = currentArticle
+      ? await articleApi.update(currentArticle.id, formData)
+      : await articleApi.create(formData);
 
     if (response.success) {
       toast.success(response.message);
@@ -147,7 +145,7 @@ const ArticlesPage = () => {
     }
   };
 
-  const handleToggleActive = async (id, currentActive) => {
+  const handleToggleActive = async (id) => {
     setLoading(true);
     const response = await articleApi.hide(id);
     if (response.success) {
@@ -164,16 +162,12 @@ const ArticlesPage = () => {
     setIsContentModalOpen(false);
   };
 
-  const handleContentClose = () => {
-    setIsContentModalOpen(false);
-  };
-
   if (loading && !articles.length) return <LoadingPage />;
 
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="flex items-center gap-2">
             <FileText className="w-5 h-5 text-primary" />
             Quản lý bài viết
@@ -202,15 +196,13 @@ const ArticlesPage = () => {
                 {articles.length > 0 ? (
                   articles.map((article) => (
                     <TableRow key={article.id}>
-                      <TableCell className="font-medium">
-                        {article.id}
-                      </TableCell>
+                      <TableCell className="font-medium">{article.id}</TableCell>
                       <TableCell>{article.title}</TableCell>
                       <TableCell>{article.slug}</TableCell>
                       <TableCell>
                         {article.thumbnailUrl ? (
                           <img
-                            src={article.thumbnailUrl || "/placeholder.svg"}
+                            src={article.thumbnailUrl}
                             alt={article.title}
                             className="w-12 h-12 object-cover rounded-md"
                           />
@@ -234,15 +226,11 @@ const ArticlesPage = () => {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={() => handleOpenSheet(article)}
-                            >
+                            <DropdownMenuItem onClick={() => handleOpenSheet(article)}>
                               <Edit className="w-4 h-4 mr-2" /> Edit
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                              onClick={() =>
-                                handleToggleActive(article.id, article.active)
-                              }
+                              onClick={() => handleToggleActive(article.id)}
                             >
                               {article.active ? (
                                 <>
@@ -278,98 +266,100 @@ const ArticlesPage = () => {
         </CardContent>
       </Card>
 
-      {isSheetOpen && (
-        <div className="fixed inset-0 z-1000 bg-black/50 backdrop-blur-sm flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-2xl w-[90vw] max-w-[90vw] h-[95vh] overflow-auto">
-            <h2 className="text-xl font-semibold mb-4">
-              {currentArticle ? "Edit Article" : "Add New Article"}
-            </h2>
-            <p className="text-sm text-gray-600 mb-6">
-              {currentArticle
-                ? "Make changes to the article here. Click save when you're done."
-                : "Add a new article. Click save when you're done."}
-            </p>
-            <form onSubmit={handleSubmit} className="grid gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="title">Title</Label>
-                <Input
-                  id="title"
-                  value={formState.title}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="slug">Slug</Label>
-                <Input
-                  id="slug"
-                  value={formState.slug}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label>Content</Label>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full mb-2 flex items-center gap-2"
-                  onClick={() => setIsContentModalOpen(true)}
-                >
-                  <FileText className="w-4 h-4" />
-                  Edit Content
-                </Button>
-
-                <ContentEditModal
-                  content={formState.content}
-                  onSave={handleContentSave}
-                  isOpen={isContentModalOpen}
-                  onClose={handleContentClose}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="thumbnailFile">Thumbnail Image</Label>
-                <Input
-                  id="thumbnailFile"
-                  type="file"
-                  onChange={handleInputChange}
-                  accept="image/*"
-                />
-                {formState.thumbnailUrl && !formState.thumbnailFile && (
-                  <img
-                    src={formState.thumbnailUrl || "/placeholder.svg"}
-                    alt="Current Thumbnail"
-                    className="w-24 h-24 object-cover rounded-md mt-2"
-                  />
-                )}
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="active"
-                  checked={formState.active}
-                  onCheckedChange={(checked) =>
-                    setFormState((prev) => ({ ...prev, active: !!checked }))
-                  }
-                />
-                <Label htmlFor="active">Active</Label>
-              </div>
-              <div className="flex justify-end gap-4 mt-6">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsSheetOpen(false)}
-                  className="bg-gray-100 hover:bg-gray-200"
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={loading}>
-                  {loading ? "Saving..." : "Save changes"}
-                </Button>
-              </div>
-            </form>
+      <EditModal
+        isOpen={isSheetOpen}
+        onOpenChange={setIsSheetOpen}
+        title={currentArticle ? "Edit Article" : "Add New Article"}
+        description={
+          currentArticle
+            ? "Make changes to the article here. Click save when you're done."
+            : "Add a new article. Click save when you're done."
+        }
+      >
+        <form onSubmit={handleSubmit} className="grid gap-4">
+          <div className="grid gap-2">
+            <Label htmlFor="title">Title</Label>
+            <Input
+              id="title"
+              value={formState.title}
+              onChange={handleInputChange}
+              required
+            />
           </div>
-        </div>
-      )}
+
+          <div className="grid gap-2">
+            <Label htmlFor="slug">Slug</Label>
+            <Input
+              id="slug"
+              value={formState.slug}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+
+          <div className="grid gap-2">
+            <Label>Content</Label>
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full mb-2 flex items-center gap-2"
+              onClick={() => setIsContentModalOpen(true)}
+            >
+              <FileText className="w-4 h-4" />
+              Edit Content
+            </Button>
+
+            <ContentEditModal
+              content={formState.content}
+              onSave={handleContentSave}
+              isOpen={isContentModalOpen}
+              onClose={() => setIsContentModalOpen(false)}
+            />
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="thumbnailFile">Thumbnail Image</Label>
+            <Input
+              id="thumbnailFile"
+              type="file"
+              onChange={handleInputChange}
+              accept="image/*"
+            />
+            {formState.thumbnailUrl && !formState.thumbnailFile && (
+              <img
+                src={formState.thumbnailUrl}
+                alt="Current Thumbnail"
+                className="w-24 h-24 object-cover rounded-md mt-2"
+              />
+            )}
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="active"
+              checked={formState.active}
+              onCheckedChange={(checked) =>
+                setFormState((prev) => ({ ...prev, active: !!checked }))
+              }
+            />
+            <Label htmlFor="active">Active</Label>
+          </div>
+
+          <div className="flex justify-end gap-4 mt-6">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsSheetOpen(false)}
+              className="bg-gray-100 hover:bg-gray-200"
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={loading}>
+              {loading ? "Saving..." : "Save changes"}
+            </Button>
+          </div>
+        </form>
+      </EditModal>
     </div>
   );
 };

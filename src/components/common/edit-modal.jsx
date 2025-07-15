@@ -1,46 +1,45 @@
-"use client"
-import { useIsMobile } from "@/hooks/use-mobile"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet"
+"use client";
+
+import { X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 /**
- * A responsive modal component that renders a Dialog on desktop and a Sheet on mobile.
+ * A custom modal component using raw HTML/CSS (not Dialog/Sheet).
  * @param {object} props
- * @param {boolean} props.isOpen - Controls the open state of the modal.
- * @param {(open: boolean) => void} props.onOpenChange - Callback for when the open state changes.
- * @param {string} props.title - The title of the modal.
- * @param {string} props.description - The description of the modal.
- * @param {React.ReactNode} props.children - The content to be rendered inside the modal.
- * @param {string} [props.className] - Optional class names for the content.
+ * @param {boolean} props.isOpen
+ * @param {(open: boolean) => void} props.onOpenChange
+ * @param {string} props.title
+ * @param {string} props.description
+ * @param {React.ReactNode} props.children
  */
-function EditModal({ isOpen, onOpenChange, title, description, children, className }) {
-  const isMobile = useIsMobile()
-
-  if (isMobile) {
-    return (
-      <Sheet open={isOpen} onOpenChange={onOpenChange}>
-        <SheetContent side="right" className="sm:max-w-md p-3">
-          <SheetHeader>
-            <SheetTitle>{title}</SheetTitle>
-            <SheetDescription>{description}</SheetDescription>
-          </SheetHeader>
-          {children}
-        </SheetContent>
-      </Sheet>
-    )
-  }
+export function EditModal({ isOpen, onOpenChange, title, description, children }) {
+  if (!isOpen) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className={className}>
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
-        </DialogHeader>
-        {children}
-      </DialogContent>
-    </Dialog>
-  )
-}
+    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center">
+      <div
+        className="relative bg-white p-6 rounded-lg shadow-2xl w-[90vw] max-w-3xl max-h-[95vh] overflow-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <h2 className="text-xl font-semibold">{title}</h2>
+            {description && (
+              <p className="text-sm text-muted-foreground mt-1">{description}</p>
+            )}
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onOpenChange(false)}
+            className="absolute top-4 right-4 text-gray-500 hover:text-black"
+          >
+            <X className="w-5 h-5" />
+          </Button>
+        </div>
 
-export { EditModal }
+        <div>{children}</div>
+      </div>
+    </div>
+  );
+}
