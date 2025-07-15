@@ -32,7 +32,7 @@ const CategoriesPage = () => {
 
   const fetchCategories = async () => {
     handleFetch({
-        apiCall: categories.getAll,
+        apiCall: categoryApi.getAll,
         setData: setCategories,
         setLoading,
         errorMessage: "Failed to fetch categories",
