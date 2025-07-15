@@ -23,7 +23,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-
+  // const [e,p] = ["admin@gmail.com","password"]
   const { login, user } = useAuth();
   const navigate = useNavigate();
 
