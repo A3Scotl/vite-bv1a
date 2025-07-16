@@ -16,6 +16,7 @@ import SettingsPage from "@/pages/private/settings-page"
 import LoadingPage from "@/pages/common/loading-page"
 
 import { Toaster } from "sonner"
+import HomePage from "./pages/public/home-page"
 
 function AppRoutes() {
   const { loading } = useAuth()
@@ -25,9 +26,9 @@ function AppRoutes() {
   return (
     <Routes>
       <Route element={<PublicLayout />}>
-        <Route path="/" element={<div>Home</div>} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<HomePage/>} /> 
       </Route>
+       <Route path="/login" element={<Login />} />
       <Route element={<PrivateLayout />}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/dashboard/appointment" element={<AppointmentPage />} />
