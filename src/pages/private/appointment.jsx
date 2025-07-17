@@ -1,8 +1,29 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { ClipboardList } from "lucide-react"
+import { handleFetch } from "@/utils/fetch-helper";
+import { appointmentApi } from "@/apis/appointment-api";
 
-const AppointmentPage = () => {
+
+const Appointment = () => {
+  const [appointment, setAppointment] = useState([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+      fetchAppointment();
+    }, []);
+  const fetchAppointment = async () => {
+    handleFetch({
+        apiCall: appointmentApi.getAll,
+        setData: setAppointment,
+        setLoading,
+        errorMessage: "Failed to fetch appointment",
+      });
+  };
   return (
+    
     <div className="flex justify-center py-8">
       <Card className="w-full max-w-4xl">
         <CardHeader>
@@ -23,4 +44,4 @@ const AppointmentPage = () => {
   )
 }
 
-export default AppointmentPage
+export default Appointment

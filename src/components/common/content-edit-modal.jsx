@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Editor } from "@tinymce/tinymce-react";
 
-const ContentEditModal = ({ content, onSave, isOpen, onClose }) => {
+const ContentEditModal = ({content, onSave, isOpen, onClose }) => {
   const [editorContent, setEditorContent] = useState(content || "");
   const [isLoading, setIsLoading] = useState(true);
 
@@ -31,7 +31,7 @@ const ContentEditModal = ({ content, onSave, isOpen, onClose }) => {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-6 border-b">
-          <h2 className="text-xl font-semibold">Edit Article Content</h2>
+          <h2 className="text-xl font-semibold">Editor</h2>
         </div>
 
         <div className="flex-1 p-4 overflow-auto">
