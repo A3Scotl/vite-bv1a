@@ -14,7 +14,6 @@ import {
 import { toast } from "sonner";
 import ReCAPTCHA from "react-google-recaptcha";
 import { Calendar, Stethoscope } from "lucide-react";
-
 const AppointmentDialog = ({ children }) => {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
@@ -27,7 +26,6 @@ const AppointmentDialog = ({ children }) => {
     recaptchaToken: "",
   });
   const [loading, setLoading] = useState(false);
-
   const handleChange = (e) => {
     const { id, value } = e.target;
     setForm((prev) => ({ ...prev, [id]: value }));

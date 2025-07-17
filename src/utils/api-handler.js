@@ -13,12 +13,12 @@ export const apiHandler = async (method, url, data = null, config = {}) => {
     const response = isGetLike
       ? await AxiosInstance[method](url, { ...config, params: data })
       : await AxiosInstance[method](url, data, config);
-
     return {
       success: true,
       data: response.data,
       message: response.data?.message || "Success",
     };
+
   } catch (error) {
     return {
       success: false,

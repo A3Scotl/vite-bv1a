@@ -44,15 +44,15 @@ import {
   Eye,
   ImageIcon,
 } from "lucide-react";
-import { doctorApi } from "@/apis/doctor-api";
+
 import { departmentApi } from "@/apis/department-api";
 import LoadingPage from "@/pages/common/loading-page";
 import ContentEditModal from "@/components/common/content-edit-modal";
 import { EditModal } from "@/components/common/edit-modal";
-
+import { doctorApi } from "@/apis/doctor-api";
 import { handleFetch } from "@/utils/fetch-helper";
 
-const DoctorsPage = () => {
+const Doctors = () => {
   const [doctors, setDoctors] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -419,4 +419,4 @@ const DoctorsPage = () => {
   );
 };
 
-export default DoctorsPage;
+export default Doctors;

@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Users } from "lucide-react"
 
-const AccountPage = () => {
+const Account = () => {
   return (
     <div className="flex justify-center py-8">
       <Card className="w-full max-w-4xl">
@@ -23,4 +23,4 @@ const AccountPage = () => {
   )
 }
 
-export default AccountPage
+export default Account

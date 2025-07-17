@@ -37,37 +37,38 @@ import {
   Eye,
   ImageIcon,
 } from "lucide-react";
-import { articleApi } from "@/apis/article-api";
+import { departmentApi } from "@/apis/department-api";
 import LoadingPage from "@/pages/common/loading-page";
 import ContentEditModal from "@/components/common/content-edit-modal";
 import { EditModal } from "@/components/common/edit-modal";
+
 import { handleFetch } from "@/utils/fetch-helper";
 
-const ArticlesPage = () => {
-  const [articles, setArticles] = useState([]);
+const Departments = () => {
+  const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isContentModalOpen, setIsContentModalOpen] = useState(false);
-  const [currentArticle, setCurrentArticle] = useState(null);
+  const [currentDepartment, setCurrentDepartment] = useState(null);
   const [formState, setFormState] = useState({
-    title: "",
+    name: "",
     slug: "",
-    content: "",
+    description: "",
     thumbnailFile: null,
-    thumbnailUrl: "",
+    thumbnail: "",
     active: true,
   });
 
   useEffect(() => {
-    fetchArticles();
+    fetchDepartments();
   }, []);
 
-  const fetchArticles = async () => {
+  const fetchDepartments = async () => {
     handleFetch({
-        apiCall: articleApi.getAll,
-        setData: setArticles,
+        apiCall: departmentApi.getAll,
+        setData: setDepartments,
         setLoading,
-        errorMessage: "Failed to fetch articles",
+        errorMessage: "Failed to fetch department",
       });
   };
 
@@ -79,24 +80,24 @@ const ArticlesPage = () => {
     }));
   };
 
-  const handleOpenSheet = (article = null) => {
-    setCurrentArticle(article);
-    if (article) {
+  const handleOpenSheet = (department = null) => {
+    setCurrentDepartment(department);
+    if (department) {
       setFormState({
-        title: article.title,
-        slug: article.slug,
-        content: article.content,
+        name: department.name,
+        slug: department.slug,
+        description: department.description,
         thumbnailFile: null,
-        thumbnailUrl: article.thumbnailUrl || "",
-        active: article.active,
+        thumbnail: department.thumbnail || "",
+        active: department.active,
       });
     } else {
       setFormState({
-        title: "",
+        name: "",
         slug: "",
-        content: "",
+        description: "",
         thumbnailFile: null,
-        thumbnailUrl: "",
+        thumbnail: "",
         active: true,
       });
     }
@@ -108,22 +109,22 @@ const ArticlesPage = () => {
     setLoading(true);
 
     const formData = new FormData();
-    formData.append("title", formState.title);
+    formData.append("name", formState.name);
     formData.append("slug", formState.slug);
-    formData.append("content", formState.content);
+    formData.append("description", formState.description);
     formData.append("active", formState.active);
     if (formState.thumbnailFile) {
-      formData.append("thumbnailFile", formState.thumbnailFile);
+      formData.append("thumbnail", formState.thumbnailFile);
     }
 
-    const response = currentArticle
-      ? await articleApi.update(currentArticle.id, formData)
-      : await articleApi.create(formData);
+    const response = currentDepartment
+      ? await departmentApi.update(currentDepartment.id, formData)
+      : await departmentApi.create(formData);
 
     if (response.success) {
       toast.success(response.message);
       setIsSheetOpen(false);
-      fetchArticles();
+      fetchDepartments();
     } else {
       toast.error(response.message);
     }
@@ -131,12 +132,12 @@ const ArticlesPage = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this article?")) {
+    if (window.confirm("Are you sure you want to delete this department?")) {
       setLoading(true);
-      const response = await articleApi.delete(id);
+      const response = await departmentApi.delete(id);
       if (response.success) {
         toast.success(response.message);
-        fetchArticles();
+        fetchDepartments();
       } else {
         toast.error(response.message);
       }
@@ -146,10 +147,10 @@ const ArticlesPage = () => {
 
   const handleToggleActive = async (id) => {
     setLoading(true);
-    const response = await articleApi.hide(id);
+    const response = await departmentApi.hide(id);
     if (response.success) {
       toast.success(response.message);
-      fetchArticles();
+      fetchDepartments();
     } else {
       toast.error(response.message);
     }
@@ -157,11 +158,11 @@ const ArticlesPage = () => {
   };
 
   const handleContentSave = (newContent) => {
-    setFormState((prev) => ({ ...prev, content: newContent }));
+    setFormState((prev) => ({ ...prev, description: newContent }));
     setIsContentModalOpen(false);
   };
 
-  if (loading && !articles.length) return <LoadingPage />;
+  if (loading && (!departments || !departments.length)) return <LoadingPage />;
 
   return (
     <div className="space-y-6">
@@ -169,14 +170,14 @@ const ArticlesPage = () => {
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="flex items-center gap-2">
             <FileText className="w-5 h-5 text-primary" />
-            Quản lý bài viết
+            Quản lý phòng ban
           </CardTitle>
           <Button onClick={() => handleOpenSheet()} size="sm">
-            <Plus className="w-4 h-4 mr-2" /> Add New Article
+            <Plus className="w-4 h-4 mr-2" /> Thêm phòng ban mới
           </Button>
         </CardHeader>
         <CardDescription className="px-6">
-          Create, edit, and publish articles for your website.
+          Tạo, chỉnh sửa và quản lý các phòng ban cho bệnh viện.
         </CardDescription>
         <CardContent className="pt-4">
           <div className="overflow-x-auto">
@@ -184,25 +185,27 @@ const ArticlesPage = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>ID</TableHead>
-                  <TableHead>Title</TableHead>
+                  <TableHead>Tên</TableHead>
                   <TableHead>Slug</TableHead>
-                  <TableHead>Thumbnail</TableHead>
-                  <TableHead>Active</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>Hình ảnh</TableHead>
+                  <TableHead>Hoạt động</TableHead>
+                  <TableHead className="text-right">Hành động</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {articles.length > 0 ? (
-                  articles.map((article) => (
-                    <TableRow key={article.id}>
-                      <TableCell className="font-medium">{article.id}</TableCell>
-                      <TableCell>{article.title}</TableCell>
-                      <TableCell>{article.slug}</TableCell>
+                {departments.length > 0 ? (
+                  departments.map((department) => (
+                    <TableRow key={department.id}>
+                      <TableCell className="font-medium">
+                        {department.id}
+                      </TableCell>
+                      <TableCell>{department.name}</TableCell>
+                      <TableCell>{department.slug}</TableCell>
                       <TableCell>
-                        {article.thumbnailUrl ? (
+                        {department.thumbnail ? (
                           <img
-                            src={article.thumbnailUrl}
-                            alt={article.title}
+                            src={department.thumbnail}
+                            alt={department.name}
                             className="w-12 h-12 object-cover rounded-md"
                           />
                         ) : (
@@ -210,42 +213,44 @@ const ArticlesPage = () => {
                         )}
                       </TableCell>
                       <TableCell>
-                        {article.active ? (
-                          <span className="text-green-600">Active</span>
+                        {department.active ? (
+                          <span className="text-green-600">Hoạt động</span>
                         ) : (
-                          <span className="text-red-600">Hidden</span>
+                          <span className="text-red-600">Ẩn</span>
                         )}
                       </TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="h-8 w-8 p-0">
-                              <span className="sr-only">Open menu</span>
+                              <span className="sr-only">Mở menu</span>
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleOpenSheet(article)}>
-                              <Edit className="w-4 h-4 mr-2" /> Edit
+                            <DropdownMenuItem
+                              onClick={() => handleOpenSheet(department)}
+                            >
+                              <Edit className="w-4 h-4 mr-2" /> Chỉnh sửa
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                              onClick={() => handleToggleActive(article.id)}
+                              onClick={() => handleToggleActive(department.id)}
                             >
-                              {article.active ? (
+                              {department.active ? (
                                 <>
-                                  <EyeOff className="w-4 h-4 mr-2" /> Hide
+                                  <EyeOff className="w-4 h-4 mr-2" /> Ẩn
                                 </>
                               ) : (
                                 <>
-                                  <Eye className="w-4 h-4 mr-2" /> Show
+                                  <Eye className="w-4 h-4 mr-2" /> Hiện
                                 </>
                               )}
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                              onClick={() => handleDelete(article.id)}
+                              onClick={() => handleDelete(department.id)}
                               className="text-red-600"
                             >
-                              <Trash2 className="w-4 h-4 mr-2" /> Delete
+                              <Trash2 className="w-4 h-4 mr-2" /> Xóa
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -255,7 +260,7 @@ const ArticlesPage = () => {
                 ) : (
                   <TableRow>
                     <TableCell colSpan={6} className="h-24 text-center">
-                      No articles found.
+                      Không tìm thấy phòng ban.
                     </TableCell>
                   </TableRow>
                 )}
@@ -268,19 +273,19 @@ const ArticlesPage = () => {
       <EditModal
         isOpen={isSheetOpen}
         onOpenChange={setIsSheetOpen}
-        title={currentArticle ? "Edit Article" : "Add New Article"}
+        title={currentDepartment ? "Chỉnh sửa phòng ban" : "Thêm phòng ban mới"}
         description={
-          currentArticle
-            ? "Make changes to the article here. Click save when you're done."
-            : "Add a new article. Click save when you're done."
+          currentDepartment
+            ? "Thực hiện thay đổi cho phòng ban tại đây. Nhấn lưu khi hoàn tất."
+            : "Thêm một phòng ban mới. Nhấn lưu khi hoàn tất."
         }
       >
         <form onSubmit={handleSubmit} className="grid gap-4">
           <div className="grid gap-2">
-            <Label htmlFor="title">Title</Label>
+            <Label htmlFor="name">Tên phòng ban</Label>
             <Input
-              id="title"
-              value={formState.title}
+              id="name"
+              value={formState.name}
               onChange={handleInputChange}
               required
             />
@@ -297,7 +302,7 @@ const ArticlesPage = () => {
           </div>
 
           <div className="grid gap-2">
-            <Label>Content</Label>
+            <Label>Mô tả</Label>
             <Button
               type="button"
               variant="outline"
@@ -305,11 +310,11 @@ const ArticlesPage = () => {
               onClick={() => setIsContentModalOpen(true)}
             >
               <FileText className="w-4 h-4" />
-              Edit Content
+              Chỉnh sửa mô tả
             </Button>
 
             <ContentEditModal
-              content={formState.content}
+              content={formState.description}
               onSave={handleContentSave}
               isOpen={isContentModalOpen}
               onClose={() => setIsContentModalOpen(false)}
@@ -317,17 +322,17 @@ const ArticlesPage = () => {
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="thumbnailFile">Thumbnail Image</Label>
+            <Label htmlFor="thumbnailFile">Hình ảnh đại diện</Label>
             <Input
               id="thumbnailFile"
               type="file"
               onChange={handleInputChange}
               accept="image/*"
             />
-            {formState.thumbnailUrl && !formState.thumbnailFile && (
+            {formState.thumbnail && !formState.thumbnailFile && (
               <img
-                src={formState.thumbnailUrl}
-                alt="Current Thumbnail"
+                src={formState.thumbnail}
+                alt="Hình ảnh hiện tại"
                 className="w-24 h-24 object-cover rounded-md mt-2"
               />
             )}
@@ -341,7 +346,7 @@ const ArticlesPage = () => {
                 setFormState((prev) => ({ ...prev, active: !!checked }))
               }
             />
-            <Label htmlFor="active">Active</Label>
+            <Label htmlFor="active">Hoạt động</Label>
           </div>
 
           <div className="flex justify-end gap-4 mt-6">
@@ -351,10 +356,10 @@ const ArticlesPage = () => {
               onClick={() => setIsSheetOpen(false)}
               className="bg-gray-100 hover:bg-gray-200"
             >
-              Cancel
+              Hủy
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? "Saving..." : "Save changes"}
+              {loading ? "Đang lưu..." : "Lưu thay đổi"}
             </Button>
           </div>
         </form>
@@ -363,4 +368,4 @@ const ArticlesPage = () => {
   );
 };
 
-export default ArticlesPage;
+export default Departments;

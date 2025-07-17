@@ -8,7 +8,7 @@ import { handleFetch } from "@/utils/fetch-helper";
 import { appointmentApi } from "@/apis/appointment-api";
 
 
-const AppointmentPage = () => {
+const Appointment = () => {
   const [appointment, setAppointment] = useState([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
@@ -44,4 +44,4 @@ const AppointmentPage = () => {
   )
 }
 
-export default AppointmentPage
+export default Appointment

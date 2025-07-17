@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { BarChart } from "lucide-react"
 
-const StatisticsPage = () => {
+const Statistics = () => {
   return (
     <div className="flex justify-center py-8">
       <Card className="w-full max-w-4xl">
@@ -20,4 +20,4 @@ const StatisticsPage = () => {
   )
 }
 
-export default StatisticsPage
+export default Statistics
