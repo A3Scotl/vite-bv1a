@@ -21,6 +21,8 @@ import DoctorDetailPage from "@/pages/public/doctor-detail-page";
 import DepartmentsPage from "@/pages/public/departments-page";
 import DepartmentDetailPage from "@/pages/public/department-detail-page";
 import ContactPage from "@/pages/public/contact-page";
+import ArticlePage from "@/pages/public/articles-page";
+
 
 function AppRoutes() {
   const { loading } = useAuth();
@@ -37,6 +39,8 @@ function AppRoutes() {
 
         <Route path="/he-thong-khoa-phong" element={<DepartmentsPage />} />
         <Route path="/he-thong-khoa-phong/:slug" element={<DepartmentDetailPage />} />
+
+        <Route path="/tin-tuc-hoat-dong/:type" element={<ArticlePage />} />
 
         <Route path="/lien-he" element={<ContactPage />} />
 
