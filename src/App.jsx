@@ -57,7 +57,7 @@ function AppRoutes() {
             path="/kien-thuc-y-khoa"
             element={<ArticlesPage type="kien-thuc-y-khoa" />}
           />
-          <Route path="/tin-tuc-hoat-dong/:type/:slug" element={<ArticleDetailPage />} />
+          <Route path="/bai-viet/:slug" element={<ArticleDetailPage />} />
 
           <Route path="/doi-ngu-chuyen-gia" element={<DoctorsPage />} />
           <Route

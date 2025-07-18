@@ -274,37 +274,7 @@ export default function DoctorDetailPage() {
             {/* Sidebar */}
             <div className="space-y-6">
               {/* Quick Actions */}
-              <Card className="sticky top-4">
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-bold text-gray-900 mb-4">Đặt lịch khám</h3>
-                  <div className="space-y-3">
-                    <AppointmentDialog>
-                      <Button className="w-full bg-blue-600 hover:bg-blue-700 py-3">
-                        <Calendar className="w-4 h-4 mr-2" />
-                        Đặt lịch ngay
-                      </Button>
-                    </AppointmentDialog>
-
-                    <Button variant="outline" className="w-full py-3">
-                      <Phone className="w-4 h-4 mr-2" />
-                      Gọi tư vấn: 1900 0000
-                    </Button>
-                  </div>
-
-                  <Separator className="my-6" />
-
-                  <div className="space-y-3 text-sm">
-                    <div className="flex items-center">
-                      <MapPin className="w-4 h-4 mr-2 text-gray-400" />
-                      <span className="text-gray-600">Phòng khám: {doctor.department?.name}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Clock className="w-4 h-4 mr-2 text-gray-400" />
-                      <span className="text-gray-600">Giờ làm việc: 7:30 - 17:00</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+        
 
               {/* Department Info */}
               {doctor.department && (
