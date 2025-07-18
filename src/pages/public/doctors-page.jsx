@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import {
 import DoctorCard from "@/components/public/doctor/doctor-card";
 import { doctorApi } from "@/apis/doctor-api";
 import { handleFetch } from "@/utils/fetch-helper";
+import { NewsSection } from "@/components/section/news-section";
 // Mock data dựa trên hình ảnh
 
 const specialties = [
@@ -44,7 +45,6 @@ const DoctorsPage = () => {
     handleFetch({
       apiCall: doctorApi.getAllActive,
       setData: setDoctors,
-      errorMessage: "Failed to fetch doctors",
     });
   };
   // const filteredDoctors = useMemo(() => {
@@ -165,6 +165,7 @@ const DoctorsPage = () => {
           {/* Hiển thị {filteredDoctors.length} kết quả */}
         </div>
       </main>
+      <NewsSection titleSection={"Bài viết liên quan"}/>
     </div>
   );
 };

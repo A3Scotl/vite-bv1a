@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -49,26 +50,48 @@ const Articles = () => {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isContentModalOpen, setIsContentModalOpen] = useState(false);
   const [currentArticle, setCurrentArticle] = useState(null);
+  const [articleTypes, setArticleTypes] = useState([]);
   const [formState, setFormState] = useState({
     title: "",
-    slug: "",
     content: "",
     thumbnailFile: null,
     thumbnailUrl: "",
     active: true,
+    status: "DRAFT",
+    publishedAt: "",
+    articleType: "",
   });
 
   useEffect(() => {
     fetchArticles();
+    fetchArticleTypes();
   }, []);
 
   const fetchArticles = async () => {
-    handleFetch({
-        apiCall: articleApi.getAll,
-        setData: setArticles,
-        setLoading,
-        errorMessage: "Failed to fetch articles",
-      });
+    await handleFetch({
+      apiCall: articleApi.getAll,
+      setData: setArticles,
+      setLoading,
+      errorMessage: "Failed to fetch articles",
+    });
+  };
+
+  const fetchArticleTypes = async () => {
+    await handleFetch({
+      apiCall: articleApi.getArticleTypes,
+      setData: (data) => {
+        // Transform array of strings to array of objects if needed
+        const transformedData = Array.isArray(data)
+          ? data.map((type, index) => ({
+              id: type, // Use the string as the ID
+              name: type.replace('_', ' ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase()), // Convert to readable name
+            }))
+          : [];
+        setArticleTypes(transformedData);
+      },
+      setLoading,
+      errorMessage: "Failed to fetch article types",
+    });
   };
 
   const handleInputChange = (e) => {
@@ -79,28 +102,47 @@ const Articles = () => {
     }));
   };
 
+  const handleSelectType = (value) => {
+    setFormState((prev) => ({
+      ...prev,
+      articleType: value,
+    }));
+  };
+
   const handleOpenSheet = (article = null) => {
     setCurrentArticle(article);
     if (article) {
       setFormState({
         title: article.title,
-        slug: article.slug,
         content: article.content,
         thumbnailFile: null,
         thumbnailUrl: article.thumbnailUrl || "",
         active: article.active,
+        status: article.status || "DRAFT",
+        publishedAt: article.publishedAt || "",
+        articleType: article.articleType || "",
       });
     } else {
       setFormState({
         title: "",
-        slug: "",
         content: "",
         thumbnailFile: null,
         thumbnailUrl: "",
         active: true,
+        status: "DRAFT",
+        publishedAt: "",
+        articleType: "",
       });
     }
     setIsSheetOpen(true);
+  };
+
+  const handleStatusToggle = () => {
+    setFormState((prev) => ({
+      ...prev,
+      status: prev.status === "DRAFT" ? "PUBLISHED" : "DRAFT",
+      publishedAt: prev.status === "DRAFT" ? new Date().toISOString() : "",
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -109,11 +151,13 @@ const Articles = () => {
 
     const formData = new FormData();
     formData.append("title", formState.title);
-    formData.append("slug", formState.slug);
     formData.append("content", formState.content);
     formData.append("active", formState.active);
+    formData.append("status", formState.status);
+    formData.append("publishedAt", formState.publishedAt);
+    formData.append("type", formState.articleType);
     if (formState.thumbnailFile) {
-      formData.append("thumbnailFile", formState.thumbnailFile);
+      formData.append("thumbnail", formState.thumbnailFile);
     }
 
     const response = currentArticle
@@ -123,7 +167,7 @@ const Articles = () => {
     if (response.success) {
       toast.success(response.message);
       setIsSheetOpen(false);
-      fetchArticles();
+      await fetchArticles();
     } else {
       toast.error(response.message);
     }
@@ -136,7 +180,7 @@ const Articles = () => {
       const response = await articleApi.delete(id);
       if (response.success) {
         toast.success(response.message);
-        fetchArticles();
+        await fetchArticles();
       } else {
         toast.error(response.message);
       }
@@ -149,7 +193,7 @@ const Articles = () => {
     const response = await articleApi.hide(id);
     if (response.success) {
       toast.success(response.message);
-      fetchArticles();
+      await fetchArticles();
     } else {
       toast.error(response.message);
     }
@@ -161,7 +205,7 @@ const Articles = () => {
     setIsContentModalOpen(false);
   };
 
-  if (loading && !articles.length) return <LoadingPage />;
+  if (loading) return <LoadingPage />;
 
   return (
     <div className="space-y-6">
@@ -228,9 +272,7 @@ const Articles = () => {
                             <DropdownMenuItem onClick={() => handleOpenSheet(article)}>
                               <Edit className="w-4 h-4 mr-2" /> Edit
                             </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleToggleActive(article.id)}
-                            >
+                            <DropdownMenuItem onClick={() => handleToggleActive(article.id)}>
                               {article.active ? (
                                 <>
                                   <EyeOff className="w-4 h-4 mr-2" /> Hide
@@ -253,7 +295,7 @@ const Articles = () => {
                     </TableRow>
                   ))
                 ) : (
-                  <TableRow>
+                  <TableRow key="no-articles">
                     <TableCell colSpan={6} className="h-24 text-center">
                       No articles found.
                     </TableCell>
@@ -287,16 +329,6 @@ const Articles = () => {
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="slug">Slug</Label>
-            <Input
-              id="slug"
-              value={formState.slug}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-
-          <div className="grid gap-2">
             <Label>Content</Label>
             <Button
               type="button"
@@ -307,13 +339,33 @@ const Articles = () => {
               <FileText className="w-4 h-4" />
               Edit Content
             </Button>
-
             <ContentEditModal
               content={formState.content}
               onSave={handleContentSave}
               isOpen={isContentModalOpen}
               onClose={() => setIsContentModalOpen(false)}
             />
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="articleType">Article Type</Label>
+            <Select
+              id="articleType"
+              value={formState.articleType}
+              onValueChange={handleSelectType}
+              required
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select type..." />
+              </SelectTrigger>
+              <SelectContent>
+                {articleTypes.map((type) => (
+                  <SelectItem key={type.id} value={type.id}>
+                    {type.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid gap-2">
@@ -343,6 +395,39 @@ const Articles = () => {
             />
             <Label htmlFor="active">Active</Label>
           </div>
+
+          {currentArticle && (
+            <div className="grid gap-2">
+              <Label>Status</Label>
+              <div className="flex items-center gap-4">
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                    formState.status === "PUBLISHED"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-yellow-100 text-yellow-700"
+                  }`}
+                >
+                  {formState.status}
+                </span>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleStatusToggle}
+                  className="ml-2"
+                >
+                  {formState.status === "DRAFT" ? "Publish" : "Set as Draft"}
+                </Button>
+                {formState.status === "PUBLISHED" && (
+                  <span className="text-xs text-gray-500 ml-4">
+                    Published at:{" "}
+                    {formState.publishedAt
+                      ? new Date(formState.publishedAt).toLocaleString()
+                      : ""}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
 
           <div className="flex justify-end gap-4 mt-6">
             <Button

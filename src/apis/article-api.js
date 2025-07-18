@@ -2,7 +2,10 @@ import { apiHandler } from "@/utils/api-handler";
 
 export const articleApi = {
   getAll: () => apiHandler("get", "/articles"),
+  getAllActive: () => apiHandler("get", "/articles/public"),
   getById: (id) => apiHandler("get", `/articles/${id}`),
+  getByType: (type) => apiHandler("get", `/articles/by-type/${type}`),
+  getArticleTypes: () => apiHandler("get", "/articles/article-types"),
   create: (formData) => apiHandler("post", "/articles", formData, {
     headers: { "Content-Type": "multipart/form-data" },
   }),

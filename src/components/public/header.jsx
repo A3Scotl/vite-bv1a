@@ -74,7 +74,7 @@ const Header = () => {
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-3">
               <img
-                src="../../../public/logo/BENH-VIEN-1A-1-2.webp"
+                src="/logo/BENH-VIEN-1A-1-2.webp"
                 alt="Bệnh viện 1A"
                 className="h-18 object-contain"
               />
