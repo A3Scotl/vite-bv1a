@@ -9,7 +9,6 @@ const PublicLayout = () => {
       <Header />
 
       <main className="flex-1 bg-white">
-            <HeroSection />
         <Outlet />
       </main>
 

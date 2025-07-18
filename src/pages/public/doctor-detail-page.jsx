@@ -17,7 +17,6 @@ export default function DoctorDetailPage() {
            apiCall: ()=>doctorApi.getBySlug(slug),
            setData: setDoctor,
            setLoading,
-           errorMessage: "Failed to fetch doctors",
          });
     };
 
