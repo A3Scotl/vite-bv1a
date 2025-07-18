@@ -8,14 +8,20 @@ export const navigationItems = [
   },
   {
     name: "Tin tức",
-    // items: [
-    //   { name: "Tin tức hoạt động", href: "/tin-tuc-hoat-dong" },
-    //   { name: "Thông báo", href: "/thong-bao" },
-    //   { name: "Kiến thức y khoa", href: "/kien-thuc-y-khoa" },
-    //   { name: "Dịch vụ", href: "/dich-vu" },
-    // ],
+    items: [
+      { name: "Tin tức hoạt động", href: "/tin-tuc-hoat-dong" },
+      { name: "Thông báo", href: "/thong-bao" },
+      { name: "Kiến thức y khoa", href: "/kien-thuc-y-khoa" },
+    ],
+  },
+  {
+    name: "Dịch vụ",
+    items: [
+      { name: "Danh sách dịch vụ", href: "/dich-vu" },
+      { name: "Bảng giá dịch vụ", href: "/bang-gia-dich-vu" },
+    ],
   },
   { name: "Hệ thống khoa phòng", href: "/he-thong-khoa-phong" },
   { name: "Đội ngũ chuyên gia", href: "/doi-ngu-chuyen-gia" },
   { name: "Liên hệ", href: "/lien-he" },
-];
+]
