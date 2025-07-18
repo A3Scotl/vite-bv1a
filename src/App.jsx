@@ -23,6 +23,7 @@ import ScrollToTop from "@/components/common/scroll-to-top";
 import { Toaster } from "sonner";
 import HomePage from "@/pages/public/home-page";
 import ArticlesPage from "@/pages/public/articles-page";
+import ArticleDetailPage from "@/pages/public/article-detail-page";
 import DoctorDetailPage from "@/pages/public/doctor-detail-page";
 import DepartmentsPage from "@/pages/public/departments-page";
 import DepartmentDetailPage from "@/pages/public/department-detail-page";
