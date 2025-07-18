@@ -1,7 +1,7 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
-import Header from "@/components/header";
-import Footer from "@/components/footer";
+import Header from "@/components/public/header";
+import Footer from "@/components/public/footer";
 import HeroSection from "@/components/public/home/hero-section";
 const PublicLayout = () => {
   return (
