@@ -52,7 +52,7 @@ const Departments = () => {
   const [currentDepartment, setCurrentDepartment] = useState(null);
   const [formState, setFormState] = useState({
     name: "",
-    slug: "",
+    // slug: "",
     description: "",
     thumbnailFile: null,
     thumbnail: "",
@@ -85,7 +85,7 @@ const Departments = () => {
     if (department) {
       setFormState({
         name: department.name,
-        slug: department.slug,
+        // slug: department.slug,
         description: department.description,
         thumbnailFile: null,
         thumbnail: department.thumbnail || "",
@@ -94,7 +94,7 @@ const Departments = () => {
     } else {
       setFormState({
         name: "",
-        slug: "",
+        // slug: "",
         description: "",
         thumbnailFile: null,
         thumbnail: "",
@@ -110,9 +110,9 @@ const Departments = () => {
 
     const formData = new FormData();
     formData.append("name", formState.name);
-    formData.append("slug", formState.slug);
+    // formData.append("slug", formState.slug);
     formData.append("description", formState.description);
-    formData.append("active", formState.active);
+    formData.append("isActive", formState.active);
     if (formState.thumbnailFile) {
       formData.append("thumbnail", formState.thumbnailFile);
     }
@@ -291,7 +291,7 @@ const Departments = () => {
             />
           </div>
 
-          <div className="grid gap-2">
+          {/* <div className="grid gap-2">
             <Label htmlFor="slug">Slug</Label>
             <Input
               id="slug"
@@ -299,7 +299,7 @@ const Departments = () => {
               onChange={handleInputChange}
               required
             />
-          </div>
+          </div> */}
 
           <div className="grid gap-2">
             <Label>Mô tả</Label>

@@ -6,10 +6,6 @@ import { articleApi } from "@/apis/article-api";
 const ArticlesPage = () => {
   const { type } = useParams();
 
-  console.log("====================================");
-  console.log("type", type);
-  console.log("====================================");
-
   const [articles, setArticles] = useState([]);
   const [search, setSearch] = useState("");
   const [date, setDate] = useState("");
@@ -23,15 +19,10 @@ const ArticlesPage = () => {
     await handleFetch({
       apiCall: () => articleApi.getArticleByType(type),
       setData: (data) => {
-        // console.log("====================================");
-        // console.log("data", data);
-        // console.log("====================================");
         setArticles(data);
       },
       setLoading: setLoading,
       errorMessage: "Không thể tải danh sách bài viết.",
-      successMessage: "Tải danh sách bài viết thành công.",
-      loadingMessage: "Đang tải danh sách bài viết...",
     });
   };
 

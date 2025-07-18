@@ -152,7 +152,7 @@ const Articles = () => {
     const formData = new FormData();
     formData.append("title", formState.title);
     formData.append("content", formState.content);
-    formData.append("active", formState.active);
+    formData.append("isActive", formState.active);
     formData.append("status", formState.status);
     formData.append("publishedAt", formState.publishedAt);
     formData.append("type", formState.articleType);

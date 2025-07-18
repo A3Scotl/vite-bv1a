@@ -7,6 +7,7 @@ export const articleApi = {
   getByType: (type) => apiHandler("get", `/articles/by-type/${type}`),
   getArticleTypes: () => apiHandler("get", "/articles/article-types"),
   getArticleByType: (type) => apiHandler("get", `/articles/by-type/${type}`),
+  getArticleBySlug: (slug) => apiHandler("get", `/articles/by-slug/${slug}`),
   create: (formData) => apiHandler("post", "/articles", formData, {
     headers: { "Content-Type": "multipart/form-data" },
   }),

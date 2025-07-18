@@ -8,11 +8,11 @@ export const navigationItems = [
   },
   {
     name: "Tin tức",
-    items: [
-      { name: "Tin tức hoạt động", href: "/tin-tuc-hoat-dong" },
-      { name: "Thông báo", href: "/thong-bao" },
-      { name: "Kiến thức y khoa", href: "/kien-thuc-y-khoa" },
-    ],
+    // items: [
+    //   { name: "Tin tức hoạt động", href: "/tin-tuc-hoat-dong" },
+    //   { name: "Thông báo", href: "/thong-bao" },
+    //   { name: "Kiến thức y khoa", href: "/kien-thuc-y-khoa" },
+    // ],
   },
   {
     name: "Dịch vụ",
