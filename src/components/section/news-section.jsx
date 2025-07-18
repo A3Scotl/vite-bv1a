@@ -1,6 +1,6 @@
 import React from 'react'
 
-function DepartmentsPage() {
+function NewsSection() {
   return (
     <div>
       
@@ -8,4 +8,4 @@ function DepartmentsPage() {
   )
 }
 
-export default DepartmentsPage
+export default NewsSection

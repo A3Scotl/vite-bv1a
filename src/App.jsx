@@ -16,8 +16,10 @@ import LoadingPage from "@/pages/common/loading-page";
 import DoctorsPage from "@/pages/public/doctors-page";
 
 import { Toaster } from "sonner";
-import HomePage from "./pages/public/home-page";
-import DoctorDetailPage from "./pages/public/doctor-detail-page";
+import HomePage from "@/pages/public/home-page";
+import DoctorDetailPage from "@/pages/public/doctor-detail-page";
+import DepartmentsPage from "@/pages/public/departments-page";
+import DepartmentDetailPage from "@/pages/public/department-detail-page";
 
 function AppRoutes() {
   const { loading } = useAuth();
@@ -28,8 +30,15 @@ function AppRoutes() {
     <Routes>
       <Route element={<PublicLayout />}>
         <Route path="/" element={<HomePage />} />
+
         <Route path="/doi-ngu-chuyen-gia" element={<DoctorsPage />} />
         <Route path="/doi-ngu-chuyen-gia/:slug" element={<DoctorDetailPage />} />
+
+        <Route path="/he-thong-khoa-phong" element={<DepartmentsPage />} />
+        <Route path="/he-thong-khoa-phong/:slug" element={<DepartmentDetailPage />} />
+
+        {/* <Route path="/tin-tuc-hoat-dong" element={<DepartmentsP />} />
+        <Route path="/tin-tuc-hoat-dong/:slug" element={<DepartmentsP />} /> */}
       </Route>
       <Route path="/login" element={<Login />} />
       <Route element={<PrivateLayout />}>
