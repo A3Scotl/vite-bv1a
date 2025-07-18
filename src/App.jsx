@@ -31,6 +31,7 @@ import ContactPage from "@/pages/public/contact-page";
 import ServiceListPage from "@/pages/public/service-list-page";
 import ServiceDetailPage from "@/pages/public/service-detail-page";
 import ServicePricingPage from "@/pages/public/service-pricing-page";
+import ArticlePage from "@/pages/public/articles-page";
 
 function AppRoutes() {
   const { loading } = useAuth();
@@ -56,10 +57,7 @@ function AppRoutes() {
             path="/kien-thuc-y-khoa"
             element={<ArticlesPage type="kien-thuc-y-khoa" />}
           />
-          <Route
-            path="/bai-viet/:slug"
-            element={<ArticleDetailPage />}
-          />
+          <Route path="/bai-viet/:slug" element={<ArticleDetailPage />} />
 
           <Route path="/doi-ngu-chuyen-gia" element={<DoctorsPage />} />
           <Route
@@ -76,6 +74,10 @@ function AppRoutes() {
           <Route path="/dich-vu" element={<ServiceListPage />} />
           <Route path="/dich-vu/:slug" element={<ServiceDetailPage />} />
           <Route path="/bang-gia-dich-vu" element={<ServicePricingPage />} />
+          {/* <Route path="/he-thong-khoa-phong" element={<DepartmentsPage />} /> */}
+          {/* <Route path="/he-thong-khoa-phong/:slug" element={<DepartmentDetailPage />} /> */}
+
+          <Route path="/tin-tuc-hoat-dong/:type" element={<ArticlePage />} />
 
           <Route path="/lien-he" element={<ContactPage />} />
 

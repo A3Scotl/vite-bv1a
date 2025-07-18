@@ -55,24 +55,39 @@ import { handleFetch } from "@/utils/fetch-helper";
 const Doctors = () => {
   const [doctors, setDoctors] = useState([]);
   const [departments, setDepartments] = useState([]);
+  const [positions, setPositions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isContentModalOpen, setIsContentModalOpen] = useState(false);
   const [currentDoctor, setCurrentDoctor] = useState(null);
   const [formState, setFormState] = useState({
     fullName: "",
-    slug: "",
+    // slug: "",
     description: "",
     avatar: null,
     avatarUrl: "",
     departmentId: "",
+    positionId: "",
     active: true,
   });
 
   useEffect(() => {
     fetchDoctors();
     fetchDepartments();
+    fetchPositions();
   }, []);
+
+  const fetchPositions = () => {
+    handleFetch({
+      apiCall: doctorApi.getAllPositions,
+      setData: (data) => {
+        setPositions(data);
+        console.log("Positions:", data); // Log ra dữ liệu lấy được
+      },
+      setLoading,
+      errorMessage: "Failed to fetch positions",
+    });
+  };
 
   const fetchDoctors = () => {
     handleFetch({
@@ -103,26 +118,32 @@ const Doctors = () => {
     setFormState((prev) => ({ ...prev, departmentId: value }));
   };
 
+  const handlePositionChange = (value) => {
+    setFormState((prev) => ({ ...prev, positionId: value }));
+  };
+
   const handleOpenSheet = (doctor = null) => {
     setCurrentDoctor(doctor);
     if (doctor) {
       setFormState({
         fullName: doctor.fullName,
-        slug: doctor.slug,
+        // slug: doctor.slug,
         description: doctor.description,
         avatar: null,
         avatarUrl: doctor.avatarUrl || "",
         departmentId: doctor.department ? doctor.department.id : "",
+        positionId: doctor.position ? doctor.position.id : "",
         active: doctor.active,
       });
     } else {
       setFormState({
         fullName: "",
-        slug: "",
+        // slug: "",
         description: "",
         avatar: null,
         avatarUrl: "",
         departmentId: "",
+        positionId: "",
         active: true,
       });
     }
@@ -135,12 +156,13 @@ const Doctors = () => {
 
     const formData = new FormData();
     formData.append("fullName", formState.fullName);
-    formData.append("slug", formState.slug);
+    // formData.append("slug", formState.slug);
     formData.append("description", formState.description);
     formData.append("departmentId", formState.departmentId);
-    formData.append("active", formState.active);
+    formData.append("position", formState.positionId);
+    formData.append("isActive", formState.active);
     if (formState.avatar) {
-      formData.append("avatar", formState.avatar);
+      formData.append("avatarUrl", formState.avatar);
     }
 
     const response = currentDoctor
@@ -319,7 +341,7 @@ const Doctors = () => {
             />
           </div>
 
-          <div className="grid gap-2">
+          {/* <div className="grid gap-2">
             <Label htmlFor="slug">Slug</Label>
             <Input
               id="slug"
@@ -327,6 +349,26 @@ const Doctors = () => {
               onChange={handleInputChange}
               required
             />
+          </div> */}
+
+          <div className="grid gap-2">
+            <Label htmlFor="positionId">Vị trí</Label>
+            <Select
+              value={formState.positionId}
+              onValueChange={handlePositionChange}
+              required
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Chọn vị trí" />
+              </SelectTrigger>
+              <SelectContent>
+                {positions.map((position) => (
+                  <SelectItem key={position} value={position}>
+                    {position}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid gap-2">
