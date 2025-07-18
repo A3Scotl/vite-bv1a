@@ -21,7 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectItem } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -68,18 +68,30 @@ const Articles = () => {
   }, []);
 
   const fetchArticles = async () => {
-    handleFetch({
+    await handleFetch({
       apiCall: articleApi.getAll,
       setData: setArticles,
       setLoading,
       errorMessage: "Failed to fetch articles",
     });
   };
+
   const fetchArticleTypes = async () => {
-    const response = await articleApi.getArticleTypes();
-    if (response.success) {
-      setArticleTypes(response.data || []);
-    }
+    await handleFetch({
+      apiCall: articleApi.getArticleTypes,
+      setData: (data) => {
+        // Transform array of strings to array of objects if needed
+        const transformedData = Array.isArray(data)
+          ? data.map((type, index) => ({
+              id: type, // Use the string as the ID
+              name: type.replace('_', ' ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase()), // Convert to readable name
+            }))
+          : [];
+        setArticleTypes(transformedData);
+      },
+      setLoading,
+      errorMessage: "Failed to fetch article types",
+    });
   };
 
   const handleInputChange = (e) => {
@@ -155,7 +167,7 @@ const Articles = () => {
     if (response.success) {
       toast.success(response.message);
       setIsSheetOpen(false);
-      fetchArticles();
+      await fetchArticles();
     } else {
       toast.error(response.message);
     }
@@ -168,7 +180,7 @@ const Articles = () => {
       const response = await articleApi.delete(id);
       if (response.success) {
         toast.success(response.message);
-        fetchArticles();
+        await fetchArticles();
       } else {
         toast.error(response.message);
       }
@@ -181,7 +193,7 @@ const Articles = () => {
     const response = await articleApi.hide(id);
     if (response.success) {
       toast.success(response.message);
-      fetchArticles();
+      await fetchArticles();
     } else {
       toast.error(response.message);
     }
@@ -193,7 +205,7 @@ const Articles = () => {
     setIsContentModalOpen(false);
   };
 
-  if (loading && !articles.length) return <LoadingPage />;
+  if (loading) return <LoadingPage />;
 
   return (
     <div className="space-y-6">
@@ -227,9 +239,7 @@ const Articles = () => {
                 {articles.length > 0 ? (
                   articles.map((article) => (
                     <TableRow key={article.id}>
-                      <TableCell className="font-medium">
-                        {article.id}
-                      </TableCell>
+                      <TableCell className="font-medium">{article.id}</TableCell>
                       <TableCell>{article.title}</TableCell>
                       <TableCell>{article.slug}</TableCell>
                       <TableCell>
@@ -259,14 +269,10 @@ const Articles = () => {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={() => handleOpenSheet(article)}
-                            >
+                            <DropdownMenuItem onClick={() => handleOpenSheet(article)}>
                               <Edit className="w-4 h-4 mr-2" /> Edit
                             </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleToggleActive(article.id)}
-                            >
+                            <DropdownMenuItem onClick={() => handleToggleActive(article.id)}>
                               {article.active ? (
                                 <>
                                   <EyeOff className="w-4 h-4 mr-2" /> Hide
@@ -289,7 +295,7 @@ const Articles = () => {
                     </TableRow>
                   ))
                 ) : (
-                  <TableRow>
+                  <TableRow key="no-articles">
                     <TableCell colSpan={6} className="h-24 text-center">
                       No articles found.
                     </TableCell>
@@ -333,7 +339,6 @@ const Articles = () => {
               <FileText className="w-4 h-4" />
               Edit Content
             </Button>
-
             <ContentEditModal
               content={formState.content}
               onSave={handleContentSave}
@@ -344,20 +349,23 @@ const Articles = () => {
 
           <div className="grid gap-2">
             <Label htmlFor="articleType">Article Type</Label>
-            <select
+            <Select
               id="articleType"
               value={formState.articleType}
-              onChange={handleInputChange}
+              onValueChange={handleSelectType}
               required
-              className="border rounded px-3 py-2"
             >
-              <option value="">Select type...</option>
-              {articleTypes.map((type) => (
-                <option key={type.id} value={type.id}>
-                  {type.name}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger>
+                <SelectValue placeholder="Select type..." />
+              </SelectTrigger>
+              <SelectContent>
+                {articleTypes.map((type) => (
+                  <SelectItem key={type.id} value={type.id}>
+                    {type.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid gap-2">
