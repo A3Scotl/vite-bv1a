@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import AppointmentDialog from "../public/home/appointment-dialog";
+import AppointmentDialog from "./home/appointment-dialog";
 import { navigationItems } from "@/context/header-navigation-context";
 
 import {
@@ -74,7 +74,7 @@ const Header = () => {
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-3">
               <img
-                src="/public/logo/BENH-VIEN-1A-1-2.webp"
+                src="../../../public/logo/BENH-VIEN-1A-1-2.webp"
                 alt="Bệnh viện 1A"
                 className="h-18 object-contain"
               />
