@@ -194,7 +194,7 @@ const Doctors = () => {
       toast.error(response.message);
     }
     setLoading(false);
-  };
+  }; 
 
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this doctor?")) {
