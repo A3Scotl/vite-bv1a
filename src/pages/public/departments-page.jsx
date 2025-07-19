@@ -109,7 +109,7 @@ const DepartmentsPage = () => {
                 <Search className="absolute left-4 top-4 h-5 w-5 text-gray-400" />
                 <Input
                   type="search"
-                  placeholder="Tìm kiếm khoa phòng..."
+                  placeholder="Tìm ki���m khoa phòng..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-12 py-4 text-lg bg-white text-gray-900 border-0 rounded-xl"

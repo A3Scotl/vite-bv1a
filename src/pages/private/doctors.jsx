@@ -34,6 +34,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   FileText,
   Plus,
@@ -57,17 +58,18 @@ const Doctors = () => {
   const [departments, setDepartments] = useState([]);
   const [positions, setPositions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [positionsLoading, setPositionsLoading] = useState(true);
+  const [departmentsLoading, setDepartmentsLoading] = useState(true);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isContentModalOpen, setIsContentModalOpen] = useState(false);
   const [currentDoctor, setCurrentDoctor] = useState(null);
   const [formState, setFormState] = useState({
     fullName: "",
-    // slug: "",
     description: "",
     avatar: null,
     avatarUrl: "",
     departmentId: "",
-    positionId: "",
+    position: "",
     active: true,
   });
 
@@ -82,9 +84,8 @@ const Doctors = () => {
       apiCall: doctorApi.getAllPositions,
       setData: (data) => {
         setPositions(data);
-        console.log("Positions:", data); // Log ra dữ liệu lấy được
       },
-      setLoading,
+      setLoading: setPositionsLoading,
       errorMessage: "Failed to fetch positions",
     });
   };
@@ -102,6 +103,7 @@ const Doctors = () => {
     handleFetch({
       apiCall: departmentApi.getAllActive,
       setData: setDepartments,
+      setLoading: setDepartmentsLoading,
       errorMessage: "Failed to fetch departments",
     });
   };
@@ -119,7 +121,7 @@ const Doctors = () => {
   };
 
   const handlePositionChange = (value) => {
-    setFormState((prev) => ({ ...prev, positionId: value }));
+    setFormState((prev) => ({ ...prev, position: value }));
   };
 
   const handleOpenSheet = (doctor = null) => {
@@ -127,23 +129,21 @@ const Doctors = () => {
     if (doctor) {
       setFormState({
         fullName: doctor.fullName,
-        // slug: doctor.slug,
         description: doctor.description,
         avatar: null,
         avatarUrl: doctor.avatarUrl || "",
-        departmentId: doctor.department ? doctor.department.id : "",
-        positionId: doctor.position ? doctor.position.id : "",
+        departmentId: doctor.department ? doctor.department.id.toString() : "",
+        position: doctor.position,
         active: doctor.active,
       });
     } else {
       setFormState({
         fullName: "",
-        // slug: "",
         description: "",
         avatar: null,
         avatarUrl: "",
         departmentId: "",
-        positionId: "",
+        position: "",
         active: true,
       });
     }
@@ -156,21 +156,38 @@ const Doctors = () => {
 
     const formData = new FormData();
     formData.append("fullName", formState.fullName);
-    // formData.append("slug", formState.slug);
     formData.append("description", formState.description);
     formData.append("departmentId", formState.departmentId);
-    formData.append("position", formState.positionId);
+    formData.append("position", formState.position);
     formData.append("isActive", formState.active);
     if (formState.avatar) {
-      formData.append("avatarUrl", formState.avatar);
+      formData.append("avatarFile", formState.avatar); // Use avatarFile for new uploads
+    } else if (formState.avatarUrl) {
+      formData.append("avatarUrl", formState.avatarUrl); // Preserve existing avatarUrl
+    }
+
+    // Log FormData entries
+    console.log("FormData entries for update:");
+    for (const [key, value] of formData.entries()) {
+      console.log(`${key}: ${value}`);
     }
 
     const response = currentDoctor
       ? await doctorApi.update(currentDoctor.id, formData)
       : await doctorApi.create(formData);
 
+    console.log("Response:", response);
     if (response.success) {
       toast.success(response.message);
+      setFormState({
+        fullName: "",
+        description: "",
+        avatar: null,
+        avatarUrl: "",
+        departmentId: "",
+        position: "",
+        active: true,
+      });
       setIsSheetOpen(false);
       fetchDoctors();
     } else {
@@ -254,7 +271,7 @@ const Doctors = () => {
                       <TableCell>
                         {doctor.avatarUrl ? (
                           <img
-                            src={doctor.avatarUrl}
+                            src={doctor.avatarUrl || "/placeholder.svg"}
                             alt={doctor.fullName}
                             className="w-12 h-12 object-cover rounded-md"
                           />
@@ -341,57 +358,55 @@ const Doctors = () => {
             />
           </div>
 
-          {/* <div className="grid gap-2">
-            <Label htmlFor="slug">Slug</Label>
-            <Input
-              id="slug"
-              value={formState.slug}
-              onChange={handleInputChange}
-              required
-            />
-          </div> */}
-
           <div className="grid gap-2">
             <Label htmlFor="positionId">Vị trí</Label>
-            <Select
-              value={formState.positionId}
-              onValueChange={handlePositionChange}
-              required
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Chọn vị trí" />
-              </SelectTrigger>
-              <SelectContent>
-                {positions.map((position) => (
-                  <SelectItem key={position} value={position}>
-                    {position}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {positionsLoading ? (
+              <Skeleton className="h-10 w-full" />
+            ) : (
+              <Select
+                value={formState.position}
+                onValueChange={handlePositionChange}
+                required
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Chọn vị trí" />
+                </SelectTrigger>
+                <SelectContent>
+                  {positions.map((position) => (
+                    <SelectItem key={position} value={position}>
+                      {position}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           <div className="grid gap-2">
             <Label htmlFor="departmentId">Phòng ban</Label>
-            <Select
-              value={formState.departmenId}
-              onValueChange={handleSelectChange}
-              required
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Chọn phòng ban" />
-              </SelectTrigger>
-              <SelectContent>
-                {departments.map((department) => (
-                  <SelectItem
-                    key={department.id}
-                    value={department.id.toString()}
-                  >
-                    {department.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {departmentsLoading ? (
+              <Skeleton className="h-10 w-full" />
+            ) : (
+              <Select
+                value={formState.departmentId}
+                onValueChange={handleSelectChange}
+                required
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Chọn phòng ban" />
+                </SelectTrigger>
+                <SelectContent>
+                  {departments.map((department) => (
+                    <SelectItem
+                      key={department.id}
+                      value={department.id.toString()}
+                    >
+                      {department.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           <div className="grid gap-2">
@@ -399,7 +414,7 @@ const Doctors = () => {
             <Button
               type="button"
               variant="outline"
-              className="w-full mb-2 flex items-center gap-2"
+              className="w-full mb-2 flex items-center gap-2 bg-transparent"
               onClick={() => setIsContentModalOpen(true)}
             >
               <FileText className="w-4 h-4" />
@@ -424,7 +439,7 @@ const Doctors = () => {
             />
             {formState.avatarUrl && !formState.avatar && (
               <img
-                src={formState.avatarUrl}
+                src={formState.avatarUrl || "/placeholder.svg"}
                 alt="Ảnh đại diện hiện tại"
                 className="w-24 h-24 object-cover rounded-md mt-2"
               />

@@ -3,6 +3,7 @@ import { apiHandler } from "@/utils/api-handler";
 export const doctorApi = {
   getAll: () => apiHandler("get", "/doctors"),
   getAllActive: () => apiHandler("get", "/doctors/public"),
+  getAllByDepartmentSlug: (departmentSlug) => apiHandler("get", `/doctors/public/${departmentSlug}`),
   getAllPositions: () => apiHandler("get", "/doctors/positions"),
   getById: (id) => apiHandler("get", `/doctors/${id}`),
   getBySlug: (slug) => apiHandler("get", `/doctors/by-slug/${slug}`),

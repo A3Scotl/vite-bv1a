@@ -51,18 +51,6 @@ const mainMenuItems = [
     badge: "12",
   },
   {
-    title: "Menu",
-    url: "/dashboard/menus",
-    icon: Menu,
-    badge: null,
-  },
-  {
-    title: "Categories",
-    url: "/dashboard/categories",
-    icon: Package,
-    badge: null,
-  },
-  {
     title: "Doctors",
     url: "/dashboard/doctors",
     icon: User,
