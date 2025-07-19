@@ -20,22 +20,26 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   FileText,
   Plus,
   MoreHorizontal,
   Edit,
   Trash2,
-  EyeOff,
-  Eye,
   ImageIcon,
 } from "lucide-react";
 import { articleApi } from "@/apis/article-api";
@@ -47,6 +51,7 @@ import { handleFetch } from "@/utils/fetch-helper";
 const Articles = () => {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [articleTypesLoading, setArticleTypesLoading] = useState(true);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isContentModalOpen, setIsContentModalOpen] = useState(false);
   const [currentArticle, setCurrentArticle] = useState(null);
@@ -56,10 +61,9 @@ const Articles = () => {
     content: "",
     thumbnailFile: null,
     thumbnailUrl: "",
-    active: true,
     status: "DRAFT",
     publishedAt: "",
-    articleType: "",
+    type: "",
   });
 
   useEffect(() => {
@@ -80,16 +84,18 @@ const Articles = () => {
     await handleFetch({
       apiCall: articleApi.getArticleTypes,
       setData: (data) => {
-        // Transform array of strings to array of objects if needed
         const transformedData = Array.isArray(data)
           ? data.map((type, index) => ({
-              id: type, // Use the string as the ID
-              name: type.replace('_', ' ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase()), // Convert to readable name
+              id: type,
+              name: type
+                .replace("_", " ")
+                .toLowerCase()
+                .replace(/\b\w/g, (c) => c.toUpperCase()),
             }))
           : [];
         setArticleTypes(transformedData);
       },
-      setLoading,
+      setLoading: setArticleTypesLoading,
       errorMessage: "Failed to fetch article types",
     });
   };
@@ -105,7 +111,7 @@ const Articles = () => {
   const handleSelectType = (value) => {
     setFormState((prev) => ({
       ...prev,
-      articleType: value,
+      type: value,
     }));
   };
 
@@ -117,10 +123,9 @@ const Articles = () => {
         content: article.content,
         thumbnailFile: null,
         thumbnailUrl: article.thumbnailUrl || "",
-        active: article.active,
         status: article.status || "DRAFT",
         publishedAt: article.publishedAt || "",
-        articleType: article.articleType || "",
+        type: article.type || "",
       });
     } else {
       setFormState({
@@ -128,13 +133,13 @@ const Articles = () => {
         content: "",
         thumbnailFile: null,
         thumbnailUrl: "",
-        active: true,
         status: "DRAFT",
         publishedAt: "",
-        articleType: "",
+        type: "",
       });
     }
     setIsSheetOpen(true);
+    console.log(article);
   };
 
   const handleStatusToggle = () => {
@@ -149,21 +154,18 @@ const Articles = () => {
     e.preventDefault();
     setLoading(true);
 
-    const formData = new FormData();
+    const formData = new FormData(e.target);
     formData.append("title", formState.title);
     formData.append("content", formState.content);
-    formData.append("isActive", formState.active);
     formData.append("status", formState.status);
     formData.append("publishedAt", formState.publishedAt);
-    formData.append("type", formState.articleType);
+    formData.append("type", formState.type);
     if (formState.thumbnailFile) {
       formData.append("thumbnail", formState.thumbnailFile);
     }
-
     const response = currentArticle
       ? await articleApi.update(currentArticle.id, formData)
       : await articleApi.create(formData);
-
     if (response.success) {
       toast.success(response.message);
       setIsSheetOpen(false);
@@ -186,18 +188,6 @@ const Articles = () => {
       }
       setLoading(false);
     }
-  };
-
-  const handleToggleActive = async (id) => {
-    setLoading(true);
-    const response = await articleApi.hide(id);
-    if (response.success) {
-      toast.success(response.message);
-      await fetchArticles();
-    } else {
-      toast.error(response.message);
-    }
-    setLoading(false);
   };
 
   const handleContentSave = (newContent) => {
@@ -231,7 +221,7 @@ const Articles = () => {
                   <TableHead>Title</TableHead>
                   <TableHead>Slug</TableHead>
                   <TableHead>Thumbnail</TableHead>
-                  <TableHead>Active</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -239,13 +229,15 @@ const Articles = () => {
                 {articles.length > 0 ? (
                   articles.map((article) => (
                     <TableRow key={article.id}>
-                      <TableCell className="font-medium">{article.id}</TableCell>
+                      <TableCell className="font-medium">
+                        {article.id}
+                      </TableCell>
                       <TableCell>{article.title}</TableCell>
                       <TableCell>{article.slug}</TableCell>
                       <TableCell>
                         {article.thumbnailUrl ? (
                           <img
-                            src={article.thumbnailUrl}
+                            src={article.thumbnailUrl || "/placeholder.svg"}
                             alt={article.title}
                             className="w-12 h-12 object-cover rounded-md"
                           />
@@ -254,10 +246,10 @@ const Articles = () => {
                         )}
                       </TableCell>
                       <TableCell>
-                        {article.active ? (
-                          <span className="text-green-600">Active</span>
+                        {article.status == "DRAFT" ? (
+                          <span className="text-red-600">DRAFT</span>
                         ) : (
-                          <span className="text-red-600">Hidden</span>
+                          <span className="text-green-600">PUBLISHED</span>
                         )}
                       </TableCell>
                       <TableCell className="text-right">
@@ -269,19 +261,10 @@ const Articles = () => {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleOpenSheet(article)}>
+                            <DropdownMenuItem
+                              onClick={() => handleOpenSheet(article)}
+                            >
                               <Edit className="w-4 h-4 mr-2" /> Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleToggleActive(article.id)}>
-                              {article.active ? (
-                                <>
-                                  <EyeOff className="w-4 h-4 mr-2" /> Hide
-                                </>
-                              ) : (
-                                <>
-                                  <Eye className="w-4 h-4 mr-2" /> Show
-                                </>
-                              )}
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => handleDelete(article.id)}
@@ -333,7 +316,7 @@ const Articles = () => {
             <Button
               type="button"
               variant="outline"
-              className="w-full mb-2 flex items-center gap-2"
+              className="w-full mb-2 flex items-center gap-2 bg-transparent"
               onClick={() => setIsContentModalOpen(true)}
             >
               <FileText className="w-4 h-4" />
@@ -349,23 +332,27 @@ const Articles = () => {
 
           <div className="grid gap-2">
             <Label htmlFor="articleType">Article Type</Label>
-            <Select
-              id="articleType"
-              value={formState.articleType}
-              onValueChange={handleSelectType}
-              required
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select type..." />
-              </SelectTrigger>
-              <SelectContent>
-                {articleTypes.map((type) => (
-                  <SelectItem key={type.id} value={type.id}>
-                    {type.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {articleTypesLoading ? (
+              <Skeleton className="h-10 w-full" />
+            ) : (
+              <Select
+                id="articleType"
+                value={formState.type}
+                onValueChange={handleSelectType}
+                required
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select type..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {articleTypes.map((type) => (
+                    <SelectItem key={type.id} value={type.id}>
+                      {type.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           <div className="grid gap-2">
@@ -378,22 +365,11 @@ const Articles = () => {
             />
             {formState.thumbnailUrl && !formState.thumbnailFile && (
               <img
-                src={formState.thumbnailUrl}
+                src={formState.thumbnailUrl || "/placeholder.svg"}
                 alt="Current Thumbnail"
                 className="w-24 h-24 object-cover rounded-md mt-2"
               />
             )}
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="active"
-              checked={formState.active}
-              onCheckedChange={(checked) =>
-                setFormState((prev) => ({ ...prev, active: !!checked }))
-              }
-            />
-            <Label htmlFor="active">Active</Label>
           </div>
 
           {currentArticle && (
@@ -413,7 +389,7 @@ const Articles = () => {
                   type="button"
                   variant="outline"
                   onClick={handleStatusToggle}
-                  className="ml-2"
+                  className="ml-2 bg-transparent"
                 >
                   {formState.status === "DRAFT" ? "Publish" : "Set as Draft"}
                 </Button>
