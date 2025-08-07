@@ -4,26 +4,26 @@ import { useState, useEffect } from "react"
 import { ChevronLeft, ChevronRight, FileText, Calendar } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { articleApi } from "@/apis/article-api"
+import { postApi } from "@/apis/post-api"
 import { handleFetch } from "@/utils/fetch-helper"
 import { Link } from "react-router-dom"
 
-const ArticlesSection = () => {
-  const [articles, setArticles] = useState([])
+const PostsSection = () => {
+  const [posts, setPosts] = useState([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [itemsPerView, setItemsPerView] = useState(3)
 
   useEffect(() => {
-    fetchArticles()
+    fetchPosts()
     handleResize()
     window.addEventListener("resize", handleResize)
     return () => window.removeEventListener("resize", handleResize)
   }, [])
 
-  const fetchArticles = () => {
+  const fetchPosts = () => {
     handleFetch({
-      apiCall: articleApi.getAllActive,
-      setData: setArticles,
+      apiCall: postApi.getAllActive,
+      setData:(data)=>{setPosts(data?.content)} ,
     })
   }
 
@@ -31,21 +31,15 @@ const ArticlesSection = () => {
     if (window.innerWidth < 768) {
       setItemsPerView(1)
     } else if (window.innerWidth < 1024) {
-      setItemsPerView(2)
-    } else {
       setItemsPerView(3)
+    } else {
+      setItemsPerView(4)
     }
   }
 
-  const nextSlide = () => {
-    setCurrentIndex((prev) => (prev + itemsPerView >= articles.length ? 0 : prev + 1))
-  }
-
-  const prevSlide = () => {
-    setCurrentIndex((prev) => (prev === 0 ? Math.max(0, articles.length - itemsPerView) : prev - 1))
-  }
-
-  const visibleArticles = articles.slice(currentIndex, currentIndex + itemsPerView)
+  // Lấy 10 bài viết đầu tiên
+  const topPosts = posts.slice(0, 10)
+  const visiblePosts = topPosts.slice(currentIndex, currentIndex + itemsPerView)
 
   const formatDate = (dateString) => {
     if (!dateString) return ""
@@ -63,17 +57,15 @@ const ArticlesSection = () => {
         </div>
 
         <div className="relative">
-        
-
-          {/* Articles Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {visibleArticles.map((article) => (
-              <Card key={article.id} className="group hover:shadow-lg transition-shadow overflow-hidden">
+          {/* Posts Grid */}
+          <div className="grid  grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-2">
+            {visiblePosts.map((post) => (
+              <Card key={post.id} className="group hover:shadow-lg transition-shadow overflow-hidden">
                 <div className="aspect-video bg-gray-100 overflow-hidden">
-                  {article.thumbnailUrl ? (
+                  {post.thumbnailUrl ? (
                     <img
-                      src={article.thumbnailUrl || "/placeholder.svg"}
-                      alt={article.title}
+                      src={post.thumbnailUrl || "/placeholder.svg"}
+                      alt={post.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   ) : (
@@ -83,24 +75,24 @@ const ArticlesSection = () => {
                   )}
                 </div>
 
-                <CardContent className="p-6">
+                <CardContent className="px-4 py-0">
                   <div className="flex items-center text-sm text-gray-500 mb-3">
                     <Calendar className="w-4 h-4 mr-2" />
-                    {formatDate(article.publishedAt || article.createdAt)}
+                    {formatDate(post.publishedAt || post.createdAt)}
                   </div>
 
                   <h3 className="text-lg font-semibold text-gray-900 mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors">
-                    {article.title}
+                    {post.title}
                   </h3>
 
                   <div
                     className="text-gray-600 text-sm line-clamp-3 mb-4"
                     dangerouslySetInnerHTML={{
-                      __html: article.content?.replace(/<[^>]*>/g, "").substring(0, 150) + "...",
+                      __html: post.content?.replace(/<[^>]*>/g, "").substring(0, 150) + "...",
                     }}
                   />
 
-                  <Link to={`/tin-tuc-hoat-dong/${article.slug}`}>
+                  <Link to={`/tin-tuc-hoat-dong/${post.slug}`}>
                     <Button variant="outline" className="w-full bg-transparent">
                       Đọc thêm
                     </Button>
@@ -109,20 +101,13 @@ const ArticlesSection = () => {
               </Card>
             ))}
           </div>
-  {/* Navigation Buttons */}
-          <div className="flex justify-between items-center mb-8">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={prevSlide}
-              disabled={currentIndex === 0}
-              className="rounded-full bg-transparent"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </Button>
+
+          {/* Navigation Buttons */}
+          <div className="flex justify-center items-center pt-4">
+          
 
             <div className="flex space-x-2">
-              {Array.from({ length: Math.ceil(articles.length / itemsPerView) }).map((_, index) => (
+              {Array.from({ length: Math.ceil(topPosts.length / itemsPerView) }).map((_, index) => (
                 <button
                   key={index}
                   onClick={() => setCurrentIndex(index * itemsPerView)}
@@ -133,15 +118,7 @@ const ArticlesSection = () => {
               ))}
             </div>
 
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={nextSlide}
-              disabled={currentIndex + itemsPerView >= articles.length}
-              className="rounded-full"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </Button>
+           
           </div>
           {/* View All Button */}
           <div className="text-center mt-8">
@@ -157,4 +134,4 @@ const ArticlesSection = () => {
   )
 }
 
-export default ArticlesSection
+export default PostsSection

@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+"use client";
+
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -13,7 +15,6 @@ import DoctorCard from "@/components/public/doctor/doctor-card";
 import { doctorApi } from "@/apis/doctor-api";
 import { handleFetch } from "@/utils/fetch-helper";
 import { NewsSection } from "@/components/section/news-section";
-// Mock data dựa trên hình ảnh
 
 const specialties = [
   "CHUYÊN NGÀNH",
@@ -24,45 +25,43 @@ const specialties = [
   "Khoa Chấn thương chỉnh hình",
   "Khoa Sản phụ khoa",
 ];
-const positions = [
-  "CHỨC VỤ",
-  "Giám đốc",
-  "Trưởng khoa",
-  "Phó trưởng khoa",
-  "Bác sĩ",
-];
+const positions = ["CHỨC VỤ", "Giám đốc", "Trưởng khoa", "Phó trưởng khoa", "Bác sĩ"];
 
 const DoctorsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedSpecialty, setSelectedSpecialty] = useState("CHUYÊN NGÀNH");
   const [selectedPosition, setSelectedPosition] = useState("CHỨC VỤ");
   const [doctors, setDoctors] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchDoctors = useCallback(async () => {
+    await handleFetch({
+      apiCall: doctorApi.getAllActive,
+      setData: (data) => setDoctors(data.content || []),
+      setLoading,
+      errorMessage: "Không thể tải danh sách bác sĩ",
+    });
+  }, []);
 
   useEffect(() => {
     fetchDoctors();
-  }, []);
-  const fetchDoctors = () => {
-    handleFetch({
-      apiCall: doctorApi.getAllActive,
-      setData: setDoctors,
+  }, [fetchDoctors]);
+
+  const filteredDoctors = useMemo(() => {
+    return doctors.filter((doctor) => {
+      const matchesSearch =
+        doctor.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (doctor.department?.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (doctor.description || "").toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSpecialty =
+        selectedSpecialty === "CHUYÊN NGÀNH" || doctor.department?.name === selectedSpecialty;
+      const matchesPosition = selectedPosition === "CHỨC VỤ" || doctor.position === selectedPosition;
+      return matchesSearch && matchesSpecialty && matchesPosition;
     });
-  };
-  // const filteredDoctors = useMemo(() => {
-  //   return doctors.filter(doctor => {
-  //     const matchesSearch = doctor.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //                          doctor.department?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //                          doctor.description.toLowerCase().includes(searchTerm.toLowerCase())
-
-  //     const matchesSpecialty = selectedSpecialty === "CHUYÊN NGÀNH" || doctor.department?.name === selectedSpecialty
-  //     const matchesPosition = selectedPosition === "CHỨC VỤ" || doctor.position === selectedPosition
-
-  //     return matchesSearch && matchesSpecialty && matchesPosition
-  //   })
-  // }, [searchTerm, selectedSpecialty, selectedPosition,])
+  }, [doctors, searchTerm, selectedSpecialty, selectedPosition]);
 
   return (
     <div className="lg:px-30 container mx-auto">
-      {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="px-4 py-6 md:py-8">
           <div className="text-center mb-6 md:mb-8">
@@ -72,16 +71,9 @@ const DoctorsPage = () => {
             <div className="w-16 h-1 bg-gray-800 mx-auto" aria-hidden="true" />
           </div>
 
-          {/* Filter Dropdowns */}
           <section className="flex flex-wrap items-center justify-center gap-2 py-4">
-            <Select
-              value={selectedSpecialty}
-              onValueChange={setSelectedSpecialty}
-            >
-              <SelectTrigger
-                className="bg-white text-sm md:text-base"
-                aria-label="Lọc theo chuyên ngành"
-              >
+            <Select value={selectedSpecialty} onValueChange={setSelectedSpecialty}>
+              <SelectTrigger className="bg-white text-sm md:text-base" aria-label="Lọc theo chuyên ngành">
                 <SelectValue placeholder="CHUYÊN NGÀNH" />
               </SelectTrigger>
               <SelectContent>
@@ -93,14 +85,8 @@ const DoctorsPage = () => {
               </SelectContent>
             </Select>
 
-            <Select
-              value={selectedPosition}
-              onValueChange={setSelectedPosition}
-            >
-              <SelectTrigger
-                className="bg-white text-sm md:text-base"
-                aria-label="Lọc theo chức vụ"
-              >
+            <Select value={selectedPosition} onValueChange={setSelectedPosition}>
+              <SelectTrigger className="bg-white text-sm md:text-base" aria-label="Lọc theo chức vụ">
                 <SelectValue placeholder="CHỨC VỤ" />
               </SelectTrigger>
               <SelectContent>
@@ -113,7 +99,6 @@ const DoctorsPage = () => {
             </Select>
           </section>
 
-          {/* Search Bar */}
           <div className="max-w-2xl mx-auto">
             <div className="relative">
               <Search
@@ -133,13 +118,20 @@ const DoctorsPage = () => {
         </div>
       </header>
 
-      {/* Doctor Cards */}
-      <main className="px-4 py-6 md:py-8">
+      <main className="max-w-6xl mx-auto px-4">
         <div className="space-y-4 md:space-y-6">
-          {doctors.length > 0 ? (
-            doctors.map((doctor) => (
-              <DoctorCard key={doctor.id} doctor={doctor} />
-            ))
+          {loading && !filteredDoctors.length ? (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <div key={index} className="animate-pulse p-4 border rounded-lg">
+                  <div className="w-full h-48 bg-gray-200 rounded-md mb-4" />
+                  <div className="h-6 bg-gray-200 rounded w-3/4 mb-2" />
+                  <div className="h-4 bg-gray-200 rounded w-1/2" />
+                </div>
+              ))}
+            </div>
+          ) : filteredDoctors.length ? (
+            filteredDoctors.map((doctor) => <DoctorCard key={doctor.id} doctor={doctor} />)
           ) : (
             <div className="text-center py-12 md:py-16">
               <p className="text-gray-500 text-base md:text-lg">
@@ -159,13 +151,8 @@ const DoctorsPage = () => {
             </div>
           )}
         </div>
-
-        {/* Results Count */}
-        <div className="text-center mt-6 md:mt-8 text-gray-600 text-sm md:text-base">
-          {/* Hiển thị {filteredDoctors.length} kết quả */}
-        </div>
       </main>
-      <NewsSection titleSection={"Bài viết liên quan"}/>
+      {/* <NewsSection titleSection="Bài viết liên quan" /> */}
     </div>
   );
 };

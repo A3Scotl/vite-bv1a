@@ -13,7 +13,7 @@ import { ArrowLeft, Phone, Mail, MapPin, Calendar, Award, GraduationCap, Stethos
 import AppointmentDialog from "@/components/public/home/appointment-dialog"
 import ImageReveal from "@/components/common/image-reveal"
 import PageTransition from "@/components/common/page-transition"
-
+import { NewsSection } from "@/components/section/news-section"
 export default function DoctorDetailPage() {
   const { slug } = useParams()
   const [doctor, setDoctor] = useState(null)
@@ -36,7 +36,7 @@ export default function DoctorDetailPage() {
       <div className="min-h-screen bg-gray-50">
         {/* Breadcrumb Skeleton */}
         <div className="bg-white border-b">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex items-center space-x-2">
               <Skeleton className="h-4 w-16" />
               <span>/</span>
@@ -47,7 +47,7 @@ export default function DoctorDetailPage() {
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Skeleton className="h-6 w-48 mb-6" />
           
           <div className="grid lg:grid-cols-3 gap-8">
@@ -121,7 +121,7 @@ export default function DoctorDetailPage() {
       <div className="min-h-screen bg-gray-50">
         {/* Breadcrumb */}
         <div className="bg-white border-b">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex items-center space-x-2 text-sm text-gray-600">
               <Link to="/" className="hover:text-blue-600 transition-colors">
                 Trang chủ
@@ -136,15 +136,8 @@ export default function DoctorDetailPage() {
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Back Button */}
-          <Link 
-            to="/doi-ngu-chuyen-gia" 
-            className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-6 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Quay lại danh sách bác sĩ
-          </Link>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+         
 
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Main Content */}
@@ -319,6 +312,7 @@ export default function DoctorDetailPage() {
             </div>
           </div>
         </div>
+           
       </div>
     </PageTransition>
   )

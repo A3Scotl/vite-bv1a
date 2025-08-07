@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import AppointmentDialog from "./home/appointment-dialog";
 import { navigationItems } from "@/context/header-navigation-context";
-
 import {
   Phone,
   Mail,
@@ -31,7 +30,7 @@ const Header = () => {
     <>
       {/* Top Contact Bar */}
       <div className="bg-blue-600 text-white py-2 hidden md:block">
-        <div className="max-w-screen-xl mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-4">
           <div className="flex justify-between items-center text-sm">
             <div className="flex items-center space-x-6">
               <div className="flex items-center space-x-2">
@@ -69,7 +68,7 @@ const Header = () => {
 
       {/* Main Header */}
       <header className="bg-white shadow-lg sticky top-0 z-50 w-full">
-        <div className="max-w-screen-xl mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-4">
           <div className="flex flex-wrap items-center justify-between py-4">
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-3">
@@ -83,7 +82,7 @@ const Header = () => {
             {/* Mobile Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden ml-auto p-2"
+              className="xl:hidden ml-auto p-2"
               aria-label="Toggle menu"
             >
               {mobileMenuOpen ? (
@@ -94,7 +93,7 @@ const Header = () => {
             </button>
 
             {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center space-x-6">
+            <nav className="hidden xl:flex items-center space-x-6">
               {navigationItems.map((item) => (
                 <div key={item.name} className="relative group">
                   {item.items ? (
@@ -132,7 +131,7 @@ const Header = () => {
             </nav>
 
             {/* CTA Button */}
-            <div className="hidden lg:flex items-center space-x-4">
+            <div className="hidden xl:flex items-center space-x-4">
               <AppointmentDialog>
                 <Button className="bg-blue-600 uppercase hover:bg-blue-700">
                   <Calendar className="w-4 h-4 mr-2" />
@@ -144,7 +143,7 @@ const Header = () => {
 
           {/* Mobile Navigation */}
           {mobileMenuOpen && (
-            <div className="lg:hidden border-t py-4">
+            <div className="xl:hidden border-t py-4">
               <div className="container mx-auto px-4">
                 <nav className="flex flex-col space-y-4">
                   {navigationItems.map((item) => (

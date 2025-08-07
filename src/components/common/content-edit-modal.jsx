@@ -27,14 +27,11 @@ const ContentEditModal = ({content, onSave, isOpen, onClose }) => {
       }}
     >
       <div
-        className="bg-white w-[90vw] h-[95vh] max-w-[98vw] rounded-lg shadow-2xl flex flex-col overflow-hidden"
+        className="bg-white w-[98vw] h-[95vh] max-w-[98vw] rounded-lg shadow-2xl flex flex-col overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="p-6 border-b">
-          <h2 className="text-xl font-semibold">Editor</h2>
-        </div>
 
-        <div className="flex-1 p-4 overflow-auto">
+        <div className="flex-1 p-1">
           {isLoading ? (
             <div className="w-full h-full animate-pulse bg-gray-100 rounded-md" />
           ) : (
@@ -43,6 +40,7 @@ const ContentEditModal = ({content, onSave, isOpen, onClose }) => {
               value={editorContent}
               init={{
                 height: "80vh",
+                witdh:"100vw",
                 menubar: true,
                 plugins:
                   "advlist autolink lists link image charmap print preview anchor " +
@@ -59,20 +57,13 @@ const ContentEditModal = ({content, onSave, isOpen, onClose }) => {
           )}
         </div>
 
-        <div className="p-6 border-t flex justify-end gap-4">
+        <div className="p-2 border-t flex justify-end gap-4">
           <Button
             variant="outline"
             onClick={onClose}
-            className="bg-gray-100 hover:bg-gray-200"
+            className="bg-black text-white hover:bg-gray-200 cursor-pointer"
           >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleSave}
-            disabled={isLoading}
-            className="bg-primary hover:bg-primary-dark"
-          >
-            Save
+            Quay lại
           </Button>
         </div>
       </div>

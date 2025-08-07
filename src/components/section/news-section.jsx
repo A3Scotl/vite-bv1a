@@ -1,12 +1,35 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Newspaper, BellRing, Stethoscope } from "lucide-react";
-export function NewsSection({titleSection}) {
+import { Newspaper } from "lucide-react";
+import { postApi } from "@/apis/post-api";
+import { Link } from "react-router-dom";
+
+export function NewsSection({ titleSection }) {
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let ignore = false;
+    const fetchNews = async () => {
+      setLoading(true);
+      const res = await postApi.getByType("NEWS", { page: 0, size: 10 });
+      if (!ignore && res?.success && Array.isArray(res.data?.content)) {
+        setPosts(res.data.content);
+      }
+      setLoading(false);
+        console.log(res);
+    };
+    fetchNews();
+  
+    return () => { ignore = true; };
+
+  }, []);
+
   return (
     <section className="py-8 px-4 md:px-8 bg-white" aria-label="Tin tức">
       <div className="max-w-6xl mx-auto">
@@ -16,27 +39,46 @@ export function NewsSection({titleSection}) {
         </h2>
 
         <div className="grid gap-6 md:grid-cols-3">
-          {[1, 2, 3].map((item) => (
-            <Card
-              key={item}
-              className="hover:shadow-md transition-shadow bg-white">
-              <CardHeader>
-                <CardTitle className="text-lg font-semibold">
-                  Tin tức số {item}
-                </CardTitle>
-                <time
-                  dateTime="2025-07-18"
-                  className="text-sm text-muted-foreground">
-                  18/07/2025
-                </time>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground line-clamp-3">
-                  Đây là bản tin sức khỏe số {item}, cập nhật những thông tin y tế mới nhất dành cho cộng đồng.
-                </p>
-              </CardContent>
-            </Card>
-          ))}
+          {loading ? (
+            Array.from({ length: 3 }).map((_, i) => (
+              <Card key={i} className="animate-pulse bg-gray-100 h-40" />
+            ))
+          ) : posts.length ? (
+            posts.map((post) => (
+              <Card
+                key={post.id}
+                className="hover:shadow-md transition-shadow bg-white"
+              >
+                <CardHeader>
+                  <CardTitle className="text-lg font-semibold line-clamp-2">
+                    <Link to={`/posts/${post.slug}`} className="hover:text-blue-600 transition-colors">
+                      {post.title}
+                    </Link>
+                  </CardTitle>
+                  <time
+                    dateTime={post.publishedAt}
+                    className="text-sm text-muted-foreground"
+                  >
+                    {post.publishedAt
+                      ? new Date(post.publishedAt).toLocaleDateString("vi-VN")
+                      : ""}
+                  </time>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground line-clamp-3">
+                    {post.summary ||
+                      (post.content
+                        ? post.content.replace(/<[^>]+>/g, "").slice(0, 120) + "..."
+                        : "")}
+                  </p>
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            <div className="col-span-3 text-center text-gray-500 py-8">
+              Không có tin tức nào.
+            </div>
+          )}
         </div>
       </div>
     </section>
