@@ -27,7 +27,7 @@ export function AuthProvider({ children }) {
         localStorage.removeItem("token")
         localStorage.removeItem("user")
         setUser(null)
-        navigate("/login") // optional redirect
+        navigate("/")
         setLoading(false)
         return
       }
@@ -51,7 +51,7 @@ export function AuthProvider({ children }) {
 
   const login = (userData) => {
     setUser(userData)
-    localStorage.setItem("user", JSON.stringify(userData)) // optional nếu muốn dùng lại
+    localStorage.setItem("user", JSON.stringify(userData)) 
   }
 
   const logout = () => {

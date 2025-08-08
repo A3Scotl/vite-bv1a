@@ -15,6 +15,7 @@ import DoctorCard from "@/components/public/doctor/doctor-card";
 import { doctorApi } from "@/apis/doctor-api";
 import { handleFetch } from "@/utils/fetch-helper";
 import { NewsSection } from "@/components/section/news-section";
+import TextHeaderSection from "../../components/common/text-header-section";
 
 const specialties = [
   "CHUYÊN NGÀNH",
@@ -61,43 +62,20 @@ const DoctorsPage = () => {
   }, [doctors, searchTerm, selectedSpecialty, selectedPosition]);
 
   return (
-    <div className="lg:px-30 container mx-auto">
+    <div className="min-h-screen bg-gray-50">
+      <TextHeaderSection 
+      title={'ĐỘI NGŨ CHUYÊN GIA'}
+      description={' Đa dạng các chuyên khoa với đội ngũ bác sĩ giàu kinh nghiệm và trang thiết bị hiện đại, sẵn sàng phục vụ mọi nhu cầu chăm sóc sức khỏe của bạn'}
+      />
       <header className="bg-white shadow-sm">
         <div className="px-4 py-6 md:py-8">
           <div className="text-center mb-6 md:mb-8">
             <h1 className="text-2xl md:text-3xl uppercase font-bold text-blue-600 mb-2">
-              Đội ngũ chuyên gia
+             
             </h1>
             <div className="w-16 h-1 bg-gray-800 mx-auto" aria-hidden="true" />
           </div>
 
-          <section className="flex flex-wrap items-center justify-center gap-2 py-4">
-            <Select value={selectedSpecialty} onValueChange={setSelectedSpecialty}>
-              <SelectTrigger className="bg-white text-sm md:text-base" aria-label="Lọc theo chuyên ngành">
-                <SelectValue placeholder="CHUYÊN NGÀNH" />
-              </SelectTrigger>
-              <SelectContent>
-                {specialties.map((specialty) => (
-                  <SelectItem key={specialty} value={specialty}>
-                    {specialty}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select value={selectedPosition} onValueChange={setSelectedPosition}>
-              <SelectTrigger className="bg-white text-sm md:text-base" aria-label="Lọc theo chức vụ">
-                <SelectValue placeholder="CHỨC VỤ" />
-              </SelectTrigger>
-              <SelectContent>
-                {positions.map((position) => (
-                  <SelectItem key={position} value={position}>
-                    {position}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </section>
 
           <div className="max-w-2xl mx-auto">
             <div className="relative">

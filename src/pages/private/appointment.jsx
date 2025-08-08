@@ -58,8 +58,8 @@ const Appointment = () => {
   if (loading && !appointments.length) return <LoadingPage />;
 
   return (
-    <div className="flex justify-center py-8">
-      <Card className="w-full max-w-4xl">
+    <div className="flex justify-center">
+      <Card className="w-full max-w-8xl">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <ClipboardList className="w-5 h-5 text-primary" />

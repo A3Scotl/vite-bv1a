@@ -35,7 +35,7 @@ const Departments = () => {
     description: "",
     thumbnailFile: null,
     thumbnail: "",
-    active: true,
+    isActive: true,
   });
 
   const fetchDepartments = useCallback(async (page = 1) => {
@@ -71,14 +71,14 @@ const Departments = () => {
             description: department.description || "",
             thumbnailFile: null,
             thumbnail: department.thumbnail || "",
-            active: department.active,
+            isActive: department.isActive,
           }
         : {
             name: "",
             description: "",
             thumbnailFile: null,
             thumbnail: "",
-            active: true,
+            isActive: true,
           }
     );
     setIsSheetOpen(true);
@@ -91,7 +91,7 @@ const Departments = () => {
       const formData = new FormData();
       formData.append("name", formState.name);
       formData.append("description", formState.description);
-      formData.append("isActive", formState.active.toString());
+      formData.append("isActive", formState.isActive.toString());
       if (formState.thumbnailFile) formData.append("thumbnail", formState.thumbnailFile);
 
       const response = currentDepartment
@@ -237,17 +237,6 @@ const Departments = () => {
                 loading="lazy"
               />
             )}
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="active"
-              checked={formState.active}
-              onCheckedChange={(checked) =>
-                setFormState((prev) => ({ ...prev, active: !!checked }))
-              }
-            />
-            <Label htmlFor="active">Hoạt động</Label>
           </div>
 
           <div className="flex justify-end gap-4 mt-6">

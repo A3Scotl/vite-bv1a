@@ -39,7 +39,7 @@ const Doctors = () => {
     avatarUrl: "",
     departmentId: "",
     position: "",
-    active: true,
+    isActive: true,
   });
 
   const fetchDoctors = useCallback(async (page = 1) => {
@@ -52,6 +52,7 @@ const Doctors = () => {
       setLoading,
       errorMessage: "Không thể tải danh sách bác sĩ",
     });
+    console.log(doctors)
   }, []);
 
   const fetchDepartments = useCallback(async () => {
@@ -76,7 +77,6 @@ const Doctors = () => {
     Promise.all([fetchDoctors(currentPage), fetchDepartments(), fetchPositions()]).catch((error) =>
       toast.error("Lỗi khi tải dữ liệu: " + error.message)
     );
-    // eslint-disable-next-line
   }, [fetchDoctors, fetchDepartments, fetchPositions, currentPage]);
 
   const handleInputChange = useCallback((e) => {
@@ -106,7 +106,7 @@ const Doctors = () => {
             avatarUrl: doctor.avatarUrl || "",
             departmentId: doctor.department ? doctor.department.id.toString() : "",
             position: doctor.position || "",
-            active: doctor.active,
+            isActive: doctor.isActive,
           }
         : {
             fullName: "",
@@ -115,7 +115,7 @@ const Doctors = () => {
             avatarUrl: "",
             departmentId: "",
             position: "",
-            active: true,
+            isActive: true,
           }
     );
     setIsSheetOpen(true);
@@ -130,7 +130,7 @@ const Doctors = () => {
       formData.append("description", formState.description);
       formData.append("departmentId", formState.departmentId);
       formData.append("position", formState.position);
-      formData.append("isActive", formState.active.toString());
+      formData.append("isActive", formState.isActive.toString());
       if (formState.avatar) formData.append("avatarFile", formState.avatar);
       else if (formState.avatarUrl) formData.append("avatarUrl", formState.avatarUrl);
 
@@ -147,7 +147,7 @@ const Doctors = () => {
           avatarUrl: "",
           departmentId: "",
           position: "",
-          active: true,
+          isActive: true,
         });
         setIsSheetOpen(false);
         fetchDoctors();

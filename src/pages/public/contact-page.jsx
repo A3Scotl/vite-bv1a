@@ -3,16 +3,16 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import TextHeaderSection from "@/components/common/text-header-section";
 
 export default function ContactPage() {
   return (
-    <main className="py-20 px-4 md:px-8 max-w-6xl mx-auto">
-      <h1 className="text-3xl font-bold mb-8 text-center text-blue-800">
-        Liên hệ với chúng tôi
-      </h1>
+    <main className="min-h-screen bg-gray-50">
+      <TextHeaderSection title={'LIÊN HỆ VỚI CHÚNG TÔI'}/>
 
-      <div className="grid md:grid-cols-2 gap-8 items-start">
-        {/* Bản đồ bên trái */}
+      <div className="max-w-6xl mx-auto p-4">
+        <div className="grid md:grid-cols-2 gap-8 items-start p-10 ">
+        {/* Bản đồ */}
         <section
           aria-label="Bản đồ Google Maps"
           className="w-full h-full aspect-[4/3] md:aspect-auto"
@@ -30,7 +30,7 @@ export default function ContactPage() {
         </section>
 
         {/* Form bên phải */}
-        <section aria-label="Form liên hệ">
+        <section aria-label="Form liên hệ" className="py-8 px-6 bg-white">
           <form className="space-y-6 w-full">
             <div className="grid gap-2">
               <Label htmlFor="fullName">Họ và tên</Label>
@@ -78,6 +78,7 @@ export default function ContactPage() {
             </Button>
           </form>
         </section>
+      </div>
       </div>
     </main>
   );

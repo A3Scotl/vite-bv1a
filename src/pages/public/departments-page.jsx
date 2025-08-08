@@ -11,6 +11,7 @@ import { departmentApi } from "@/apis/department-api";
 import { handleFetch } from "@/utils/fetch-helper";
 import AppointmentDialog from "@/components/public/home/appointment-dialog";
 import { memo } from "react";
+import TextHeaderSection from "../../components/common/text-header-section";
 
 const departmentCategories = [
   { id: "all", name: "Tất cả khoa phòng", count: 0 },
@@ -98,11 +99,6 @@ const DepartmentCard = memo(({ department }) => (
         <Link to={`/he-thong-khoa-phong/${department.slug}`} className="flex-1">
           <Button className="w-full bg-blue-600 hover:bg-blue-700">Xem chi tiết</Button>
         </Link>
-        <AppointmentDialog>
-          <Button variant="outline" size="sm" className="px-3 bg-transparent">
-            <Phone className="w-4 h-4" />
-          </Button>
-        </AppointmentDialog>
       </div>
     </CardContent>
   </Card>
@@ -138,109 +134,14 @@ const DepartmentsPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">HỆ THỐNG KHOA PHÒNG</h1>
-            <p className="text-xl mb-8 max-w-3xl mx-auto">
-              Đa dạng các chuyên khoa với đội ngũ bác sĩ giàu kinh nghiệm và trang thiết bị hiện đại, sẵn sàng phục vụ mọi nhu cầu chăm sóc sức khỏe của bạn
-            </p>
-            <div className="max-w-2xl mx-auto mb-8">
-              <div className="relative">
-                <Search className="absolute left-4 top-4 h-5 w-5 text-gray-400" />
-                <Input
-                  type="search"
-                  placeholder="Tìm kiếm khoa phòng..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-12 py-4 text-lg bg-white text-gray-900 border-0 rounded-xl"
-                />
-              </div>
-            </div>
-            <AppointmentDialog>
-              <Button size="lg" className="bg-yellow-500 hover:bg-yellow-600 text-blue-900 font-semibold px-8 py-3">
-                Đặt lịch khám ngay
-              </Button>
-            </AppointmentDialog>
-          </div>
-        </div>
-      </section>
+      <TextHeaderSection 
+      title={'HỆ THỐNG KHOA PHÒNG'}
+      description={' Đa dạng các chuyên khoa với đội ngũ bác sĩ giàu kinh nghiệm và trang thiết bị hiện đại, sẵn sàng phục vụ mọi nhu cầu chăm sóc sức khỏe của bạn'}
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
 
-        <div className="mb-16">
-          <h2 className="text-3xl font-bold text-gray-900 mb-8">Khoa phòng nổi bật</h2>
-          <div className="grid lg:grid-cols-3 gap-8">
-            {featuredDepartments.map((department) => (
-              <Card
-                key={department.id}
-                className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 overflow-hidden"
-              >
-                <div className="relative">
-                  <img
-                    src={department.thumbnail || "/placeholder.svg"}
-                    alt={department.name}
-                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                    loading="lazy"
-                  />
-                  <Badge className={`absolute top-4 left-4 ${department.badgeColor} text-white border-0`}>
-                    {department.badge}
-                  </Badge>
-                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full">
-                    <div className="flex items-center text-sm font-semibold text-gray-700">
-                      <Users className="w-4 h-4 mr-1" />
-                      {department.doctorCount} bác sĩ
-                    </div>
-                  </div>
-                </div>
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
-                    {department.name}
-                  </h3>
-                  <p className="text-gray-600 mb-4 line-clamp-2">{department.description}</p>
-                  <div className="space-y-3 mb-6">
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Clock className="w-4 h-4 mr-2 text-blue-600" />
-                      <span>Giờ làm việc: {department.workingHours}</span>
-                    </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <MapPin className="w-4 h-4 mr-2 text-blue-600" />
-                      <span>Vị trí: {department.location}</span>
-                    </div>
-                  </div>
-                  <div className="mb-6">
-                    <h4 className="font-semibold text-gray-900 mb-3">Dịch vụ chính:</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {department.services.slice(0, 3).map((service, idx) => (
-                        <Badge key={idx} variant="outline" className="text-xs">
-                          {service}
-                        </Badge>
-                      ))}
-                      {department.services.length > 3 && (
-                        <Badge variant="outline" className="text-xs text-blue-600">
-                          +{department.services.length - 3} khác
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex gap-3">
-                    <Link to={`/he-thong-khoa-phong/${department.slug}`} className="flex-1">
-                      <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                        Xem chi tiết
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </Button>
-                    </Link>
-                    <AppointmentDialog>
-                      <Button variant="outline" className="px-4 bg-transparent">
-                        <Phone className="w-4 h-4" />
-                      </Button>
-                    </AppointmentDialog>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
+    
 
         <div>
           <div className="flex items-center justify-between mb-8">

@@ -18,7 +18,7 @@ export function EditModal({ isOpen, onOpenChange, title, description, children }
   return (
     <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center">
       <div
-        className="relative bg-white p-6 rounded-lg shadow-2xl w-[90vw] max-w-3xl max-h-[95vh] overflow-auto"
+        className="relative bg-white p-6 rounded-lg shadow-2xl w-[90vw] max-w-3xl max-h-[95vh] "
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-start mb-4">

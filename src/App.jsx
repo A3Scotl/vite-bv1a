@@ -1,5 +1,6 @@
 "use client";
 
+import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/context/auth-context";
 import { useScrollToTop } from "@/hooks/use-scroll-to-top";
@@ -7,36 +8,32 @@ import { useScrollToTop } from "@/hooks/use-scroll-to-top";
 import PublicLayout from "@/layouts/public-layout";
 import PrivateLayout from "@/layouts/private-layout";
 
-import Login from "@/pages/public/auth/login-page";
-import HomePage from "@/pages/public/home-page";
-
-import PostDetailPage from   "@/pages/public/detail/post-detail-page";
-import DepartmentDetailPage from "@/pages/public/detail/department-detail-page";
-import DoctorDetailPage from "@/pages/public/detail/doctor-detail-page";
-import ServiceDetailPage from "@/pages/public/detail/service-detail-page";
-
-import DoctorsPage from      "@/pages/public/doctors-page";
-import DepartmentsPage from  "@/pages/public/departments-page";
-import ContactPage from "@/pages/public/contact-page";
-import ServiceListPage from "@/pages/public/service-list-page";
-
-import ServicePricingPage from "@/pages/public/service-pricing-page";
-import PostPage from "@/pages/public/post-page";
-
-import Dashboard from "@/pages/private/dashboard-page";
-import Appointment from "@/pages/private/appointment";
-import Doctors from "@/pages/private/doctors";
-import Departments from "@/pages/private/departments";
-import Post from "@/pages/private/post";
-import Account from "@/pages/private/account";
-import Statistics from "@/pages/private/statistics";
-import Setting from "@/pages/private/settings";
-
-import NotFoundPage from "@/pages/public/not-found/not-found-page";
-
 import LoadingPage from "@/pages/common/loading-page";
 import ScrollToTop from "@/components/common/scroll-to-top";
 import { Toaster } from "sonner";
+
+// Lazy load all pages
+const Login = lazy(() => import("@/pages/public/auth/login-page"));
+const HomePage = lazy(() => import("@/pages/public/home-page"));
+const PostDetailPage = lazy(() => import("@/pages/public/detail/post-detail-page"));
+const DepartmentDetailPage = lazy(() => import("@/pages/public/detail/department-detail-page"));
+const DoctorDetailPage = lazy(() => import("@/pages/public/detail/doctor-detail-page"));
+const ServiceDetailPage = lazy(() => import("@/pages/public/detail/service-detail-page"));
+const DoctorsPage = lazy(() => import("@/pages/public/doctors-page"));
+const DepartmentsPage = lazy(() => import("@/pages/public/departments-page"));
+const ContactPage = lazy(() => import("@/pages/public/contact-page"));
+const ServiceListPage = lazy(() => import("@/pages/public/service-list-page"));
+const ServicePricingPage = lazy(() => import("@/pages/public/service-pricing-page"));
+const PostPage = lazy(() => import("@/pages/public/post-page"));
+const Dashboard = lazy(() => import("@/pages/private/dashboard-page"));
+const Appointment = lazy(() => import("@/pages/private/appointment"));
+const Doctors = lazy(() => import("@/pages/private/doctors"));
+const Departments = lazy(() => import("@/pages/private/departments"));
+const Post = lazy(() => import("@/pages/private/post"));
+const Account = lazy(() => import("@/pages/private/account"));
+const Statistics = lazy(() => import("@/pages/private/statistics"));
+const Setting = lazy(() => import("@/pages/private/settings"));
+const NotFoundPage = lazy(() => import("@/pages/public/not-found/not-found-page"));
 
 function AppRoutes() {
   const { loading } = useAuth();
@@ -45,7 +42,7 @@ function AppRoutes() {
   if (loading) return <LoadingPage />;
 
   return (
-    <>
+    <Suspense fallback={<LoadingPage />}>
       <Routes>
         <Route element={<PublicLayout />}>
           <Route path="/" element={<HomePage />} />
@@ -114,7 +111,7 @@ function AppRoutes() {
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
       <ScrollToTop />
-    </>
+    </Suspense>
   );
 }
 
