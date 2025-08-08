@@ -2,34 +2,31 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { ClipboardList } from "lucide-react";
 import { appointmentApi } from "@/apis/appointment-api";
 import { handleFetch } from "@/utils/fetch-helper";
-import LoadingPage from "@/pages/common/loading-page";
+import PageHeader from "@/components/private/page-header";
+import TableSkeleton from "@/components/private/table/table-skeleton";
 import AppointmentTable from "@/components/private/table/appointment-table";
 import Pagination from "@/components/common/pagination";
-
+import { motion, AnimatePresence } from "framer-motion";
 const Appointment = () => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [isTableLoading, setIsTableLoading] = useState(false);
 
   const fetchAppointments = useCallback(async (page = 1) => {
+    setIsTableLoading(true);
     await handleFetch({
       apiCall: () => appointmentApi.getAll({ page: page - 1, size: 5 }),
       setData: (data) => {
         setAppointments(data.content || []);
         setTotalPages(Number.isInteger(data.totalPages) ? data.totalPages : 1);
       },
-      setLoading,
+      setLoading: setIsTableLoading,
       errorMessage: "Không thể tải danh sách lịch hẹn",
     });
   }, []);
@@ -45,7 +42,7 @@ const Appointment = () => {
         const response = await appointmentApi.delete(id);
         if (response.success) {
           toast.success(response.message);
-          fetchAppointments(currentPage);
+          await fetchAppointments(currentPage);
         } else {
           toast.error(response.message);
         }
@@ -55,22 +52,45 @@ const Appointment = () => {
     [fetchAppointments, currentPage]
   );
 
-  if (loading && !appointments.length) return <LoadingPage />;
-
   return (
     <div className="flex justify-center">
       <Card className="w-full max-w-8xl">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <ClipboardList className="w-5 h-5 text-primary" />
-            Quản lý đơn đăng ký khám bệnh
-          </CardTitle>
-          <CardDescription>Quản lý tất cả các lịch hẹn của bệnh nhân.</CardDescription>
-        </CardHeader>
+        <PageHeader
+          title="Quản lý đơn đăng ký khám bệnh"
+          description="Quản lý tất cả các lịch hẹn của bệnh nhân."
+          icon={ClipboardList}
+          onAdd={() => {}}
+        />
         <CardContent>
-          <div className="overflow-x-auto">
-            <AppointmentTable appointments={appointments} onDelete={handleDelete} />
+          <div>
+            <AnimatePresence mode="wait">
+              {isTableLoading && appointments.length === 0 ? (
+                <motion.div
+                  key="skeleton"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <TableSkeleton headers={["", "", "", ""]} rows={5} />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key={`page-${currentPage}`}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <AppointmentTable
+                    appointments={appointments}
+                    onDelete={handleDelete}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
+
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}

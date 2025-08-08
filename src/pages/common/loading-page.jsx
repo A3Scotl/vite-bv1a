@@ -1,19 +1,21 @@
-import { Loader } from "lucide-react"
-import { motion } from "framer-motion"
+import { motion } from "framer-motion";
 
 const LoadingPage = () => {
   return (
-    <motion.div
-      className="flex items-center justify-center min-h-screen bg-background"
-      initial={{ opacity: 0, y: 40 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
-    >
-      <div className="flex flex-col items-center gap-4">
-        <Loader className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    </motion.div>
-  )
-}
+    <div className="fixed top-0 left-0 w-full h-[3px] bg-transparent z-50">
+      <motion.div
+        className="h-full bg-primary"
+        initial={{ width: "0%" }}
+        animate={{ width: "80%" }}
+        transition={{
+          duration: 0.8,
+          ease: "easeInOut",
+          repeat: Infinity,
+          repeatType: "reverse",
+        }}
+      />
+    </div>
+  );
+};
 
-export default LoadingPage
+export default LoadingPage;

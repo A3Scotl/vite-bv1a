@@ -6,7 +6,7 @@ function QuickContact() {
   return (
     <div>
          {/* Quick Contact */}
-          <Card className="bg-blue-50 border-blue-200 mb-8">
+          <Card className="bg-blue-50 border-blue-200">
             <CardContent className="p-6 text-center">
               <h3 className="text-lg font-bold text-blue-900 mb-2">
                 Cần tư vấn?

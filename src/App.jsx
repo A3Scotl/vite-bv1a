@@ -1,9 +1,10 @@
 "use client";
 
 import { lazy, Suspense } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/context/auth-context";
 import { useScrollToTop } from "@/hooks/use-scroll-to-top";
+import { AnimatePresence, motion } from "framer-motion";
 
 import PublicLayout from "@/layouts/public-layout";
 import PrivateLayout from "@/layouts/private-layout";
@@ -11,8 +12,8 @@ import PrivateLayout from "@/layouts/private-layout";
 import LoadingPage from "@/pages/common/loading-page";
 import ScrollToTop from "@/components/common/scroll-to-top";
 import { Toaster } from "sonner";
-
-// Lazy load all pages
+import PageTransition from "@/components/common/page-transition"
+// Lazy load tất cả page
 const Login = lazy(() => import("@/pages/public/auth/login-page"));
 const HomePage = lazy(() => import("@/pages/public/home-page"));
 const PostDetailPage = lazy(() => import("@/pages/public/detail/post-detail-page"));
@@ -37,85 +38,58 @@ const NotFoundPage = lazy(() => import("@/pages/public/not-found/not-found-page"
 
 function AppRoutes() {
   const { loading } = useAuth();
+  const location = useLocation();
   useScrollToTop();
 
   if (loading) return <LoadingPage />;
-
   return (
     <Suspense fallback={<LoadingPage />}>
-      <Routes>
-        <Route element={<PublicLayout />}>
-          <Route path="/" element={<HomePage />} />
-          <Route
-            path="/tin-tuc-hoat-dong"
-            element={<PostPage type="tin-tuc-hoat-dong" />}
-          />
-          <Route path="/thong-bao" element={<PostPage type="thong-bao" />} />
-          <Route
-            path="/kien-thuc-y-khoa"
-            element={<PostPage type="kien-thuc-y-khoa" />}
-          />
-          
-          <Route
-            path="/tong-quan-benh-vien"
-            element={<PostPage type="tong-quan-benh-vien" />}
-          />
-          <Route path="/lich-su-hinh-thanh" element={<PostPage type="lich-su-hinh-thanh" />} />
-          <Route
-            path="/so-do-to-chuc"
-            element={<PostPage type="so-do-to-chuc" />}
-          />
-          <Route
-            path="/nghien-cuu-khoa-hoc"
-            element={<PostPage type="ban-lanh-dao" />}
-          />
-           <Route path="/hop-tac-quoc-te" element={<PostPage type="hop-tac-quoc-te" />} />
-          <Route
-            path="/dao-tao-thuc-hanh"
-            element={<PostPage type="dao-tao-thuc-hanh" />}
-          />
-          <Route
-            path="/ban-lanh-dao"
-            element={<PostPage type="ban-lanh-dao" />}
-          />
-          
-          <Route path="/bai-viet/:slug" element={<PostDetailPage />} />
-          <Route path="/doi-ngu-chuyen-gia" element={<DoctorsPage />} />
-          <Route
-            path="/doi-ngu-chuyen-gia/:slug"
-            element={<DoctorDetailPage />}
-          />
-          <Route path="/he-thong-khoa-phong" element={<DepartmentsPage />} />
-          <Route
-            path="/he-thong-khoa-phong/:slug"
-            element={<DepartmentDetailPage />}
-          />
-          <Route path="/dich-vu" element={<ServiceListPage />} />
-          <Route path="/dich-vu/:slug" element={<ServiceDetailPage />} />
-          <Route path="/bang-gia-dich-vu" element={<ServicePricingPage />} />
-          <Route path="/tin-tuc-hoat-dong/:type" element={<PostPage />} />
-          <Route path="/lien-he" element={<ContactPage />} />
-        </Route>
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          <Route element={<PublicLayout />}>
+            <Route path="/" element={<PageTransition><HomePage /></PageTransition>} />
+            <Route path="/tin-tuc-hoat-dong" element={<PageTransition><PostPage type="tin-tuc-hoat-dong" /></PageTransition>} />
+            <Route path="/thong-bao" element={<PageTransition><PostPage type="thong-bao" /></PageTransition>} />
+            <Route path="/kien-thuc-y-khoa" element={<PageTransition><PostPage type="kien-thuc-y-khoa" /></PageTransition>} />
+            <Route path="/tong-quan-benh-vien" element={<PageTransition><PostPage type="tong-quan-benh-vien" /></PageTransition>} />
+            <Route path="/lich-su-hinh-thanh" element={<PageTransition><PostPage type="lich-su-hinh-thanh" /></PageTransition>} />
+            <Route path="/so-do-to-chuc" element={<PageTransition><PostPage type="so-do-to-chuc" /></PageTransition>} />
+            <Route path="/nghien-cuu-khoa-hoc" element={<PageTransition><PostPage type="ban-lanh-dao" /></PageTransition>} />
+            <Route path="/hop-tac-quoc-te" element={<PageTransition><PostPage type="hop-tac-quoc-te" /></PageTransition>} />
+            <Route path="/dao-tao-thuc-hanh" element={<PageTransition><PostPage type="dao-tao-thuc-hanh" /></PageTransition>} />
+            <Route path="/ban-lanh-dao" element={<PageTransition><PostPage type="ban-lanh-dao" /></PageTransition>} />
+            <Route path="/bai-viet/:slug" element={<PageTransition><PostDetailPage /></PageTransition>} />
+            <Route path="/doi-ngu-chuyen-gia" element={<PageTransition><DoctorsPage /></PageTransition>} />
+            <Route path="/doi-ngu-chuyen-gia/:slug" element={<PageTransition><DoctorDetailPage /></PageTransition>} />
+            <Route path="/he-thong-khoa-phong" element={<PageTransition><DepartmentsPage /></PageTransition>} />
+            <Route path="/he-thong-khoa-phong/:slug" element={<PageTransition><DepartmentDetailPage /></PageTransition>} />
+            <Route path="/dich-vu" element={<PageTransition><ServiceListPage /></PageTransition>} />
+            <Route path="/dich-vu/:slug" element={<PageTransition><ServiceDetailPage /></PageTransition>} />
+            <Route path="/bang-gia-dich-vu" element={<PageTransition><ServicePricingPage /></PageTransition>} />
+            <Route path="/tin-tuc-hoat-dong/:type" element={<PageTransition><PostPage /></PageTransition>} />
+            <Route path="/lien-he" element={<PageTransition><ContactPage /></PageTransition>} />
+          </Route>
 
-        <Route path="/login" element={<Login />} />
-        <Route element={<PrivateLayout />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/dashboard/appointment" element={<Appointment />} />
-          <Route path="/dashboard/doctors" element={<Doctors />} />
-          <Route path="/dashboard/departments" element={<Departments />} />
-          <Route path="/dashboard/posts" element={<Post />} />
-          <Route path="/dashboard/account" element={<Account />} />
-          <Route path="/dashboard/statistics" element={<Statistics />} />
-          <Route path="/dashboard/settings" element={<Setting />} />
-        </Route>
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-      <ScrollToTop />
+          <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
+          <Route element={<PrivateLayout />}>
+            <Route path="/dashboard" element={<PageTransition><Dashboard /></PageTransition>} />
+            <Route path="/dashboard/appointment" element={<PageTransition><Appointment /></PageTransition>} />
+            <Route path="/dashboard/doctors" element={<PageTransition><Doctors /></PageTransition>} />
+            <Route path="/dashboard/departments" element={<PageTransition><Departments /></PageTransition>} />
+            <Route path="/dashboard/posts" element={<PageTransition><Post /></PageTransition>} />
+            <Route path="/dashboard/account" element={<PageTransition><Account /></PageTransition>} />
+            <Route path="/dashboard/statistics" element={<PageTransition><Statistics /></PageTransition>} />
+            <Route path="/dashboard/settings" element={<PageTransition><Setting /></PageTransition>} />
+          </Route>
+          <Route path="*" element={<PageTransition><NotFoundPage /></PageTransition>} />
+        </Routes>
+        <ScrollToTop />
+      </AnimatePresence>
     </Suspense>
   );
 }
 
-function App() {
+export default function App() {
   return (
     <AuthProvider>
       <Toaster position="top-right" richColors closeButton duration={3000} />
@@ -123,5 +97,3 @@ function App() {
     </AuthProvider>
   );
 }
-
-export default App;

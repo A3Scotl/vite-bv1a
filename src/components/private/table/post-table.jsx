@@ -4,10 +4,9 @@ import { Edit, Trash2, EyeOff, Eye } from "lucide-react";
 
 const PostTable = ({ posts, onEdit, onToggleActive, onDelete }) => {
   const headers = [
-    "ID",
     "Tiêu đề",
-    "Thể loại",
     "Hình ảnh",
+    "Thể loại",
     "Trạng thái",
     "Hành động", 
   ];
@@ -17,14 +16,16 @@ const PostTable = ({ posts, onEdit, onToggleActive, onDelete }) => {
       key={post.id}
       data={post}
       cells={[
-        { value: (item) => item.id, className: "font-medium" },
+       
+       
         { value: (item) => item.title },
-        { value: (item) => item.type },
-        {
+          {
           type: "image",
           getImageUrl: (item) => item.thumbnailUrl,
           altText: (item) => item.title,
         },
+        { value: (item) => item.type },
+       
         {
           type: "status",
           getStatus: (item) => item.status,

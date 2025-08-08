@@ -9,10 +9,7 @@ const PublicLayout = () => {
       <Header />
       <main className="flex-1 bg-white">
         <Outlet />
-        <div className="max-w-6xl mx-auto px-4 pt-10">
-           {/* Quick Actions */}
-            <QuickContact/>
-        </div>
+        <QuickContact/>
       </main>
       <Footer />
     </div>

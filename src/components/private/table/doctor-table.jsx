@@ -4,7 +4,6 @@ import { Edit, Trash2, EyeOff, Eye } from "lucide-react";
 
 const DoctorTable = ({ doctors, onEdit, onToggleActive, onDelete }) => {
   const headers = [
-    "ID",
     "Họ tên",
     "Ảnh đại diện",
     "Phòng ban",
@@ -18,7 +17,7 @@ const DoctorTable = ({ doctors, onEdit, onToggleActive, onDelete }) => {
       key={doctor.id}
       data={doctor}
       cells={[
-        { value: (item) => item.id, className: "font-medium" },
+
         { value: (item) => item.fullName },
         {
           type: "image",

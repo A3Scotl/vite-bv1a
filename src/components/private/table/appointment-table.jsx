@@ -4,7 +4,6 @@ import { Trash2 } from "lucide-react";
 
 const AppointmentTable = ({ appointments, onDelete }) => {
   const headers = [
-    "ID",
     "Họ tên",
     "Số điện thoại",
     "Ngày khám",
@@ -19,7 +18,6 @@ const AppointmentTable = ({ appointments, onDelete }) => {
       key={appointment.id}
       data={appointment}
       cells={[
-        { value: (item) => item.id, className: "font-medium" },
         { value: (item) => item.fullName },
         { value: (item) => item.phone },
         { type: "date", value: (item) => item.date }, 

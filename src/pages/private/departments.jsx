@@ -2,25 +2,20 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { FileText, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { FileText } from "lucide-react";
 import { departmentApi } from "@/apis/department-api";
-import LoadingPage from "@/pages/common/loading-page";
+import PageHeader from "@/components/private/page-header";
+import TableSkeleton from "@/components/private/table/table-skeleton";
 import ContentEditModal from "@/components/common/content-edit-modal";
 import { EditModal } from "@/components/common/edit-modal";
 import { handleFetch } from "@/utils/fetch-helper";
 import DepartmentTable from "@/components/private/table/department-table";
 import Pagination from "@/components/common/pagination";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Departments = () => {
   const [departments, setDepartments] = useState([]);
@@ -30,6 +25,7 @@ const Departments = () => {
   const [currentDepartment, setCurrentDepartment] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [isTableLoading, setIsTableLoading] = useState(false);
   const [formState, setFormState] = useState({
     name: "",
     description: "",
@@ -39,13 +35,14 @@ const Departments = () => {
   });
 
   const fetchDepartments = useCallback(async (page = 1) => {
+    setIsTableLoading(true);
     await handleFetch({
       apiCall: () => departmentApi.getAll({ page: page - 1, size: 5 }),
       setData: (data) => {
         setDepartments(data.content || []);
         setTotalPages(Number.isInteger(data.totalPages) ? data.totalPages : 1);
       },
-      setLoading,
+      setLoading: setIsTableLoading,
       errorMessage: "Không thể tải danh sách phòng ban",
     });
   }, []);
@@ -92,7 +89,8 @@ const Departments = () => {
       formData.append("name", formState.name);
       formData.append("description", formState.description);
       formData.append("isActive", formState.isActive.toString());
-      if (formState.thumbnailFile) formData.append("thumbnail", formState.thumbnailFile);
+      if (formState.thumbnailFile)
+        formData.append("thumbnail", formState.thumbnailFile);
 
       const response = currentDepartment
         ? await departmentApi.update(currentDepartment.id, formData)
@@ -101,7 +99,7 @@ const Departments = () => {
       if (response.success) {
         toast.success(response.message);
         setIsSheetOpen(false);
-        fetchDepartments();
+        await fetchDepartments();
       } else {
         toast.error(response.message);
       }
@@ -117,7 +115,7 @@ const Departments = () => {
         const response = await departmentApi.delete(id);
         if (response.success) {
           toast.success(response.message);
-          fetchDepartments();
+          await fetchDepartments();
         } else {
           toast.error(response.message);
         }
@@ -133,7 +131,7 @@ const Departments = () => {
       const response = await departmentApi.hide(id);
       if (response.success) {
         toast.success(response.message);
-        fetchDepartments();
+        await fetchDepartments();
       } else {
         toast.error(response.message);
       }
@@ -147,32 +145,55 @@ const Departments = () => {
     setIsContentModalOpen(false);
   }, []);
 
-  if (loading && !departments.length) return <LoadingPage />;
-
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="w-5 h-5 text-primary" />
-            Quản lý phòng ban
-          </CardTitle>
-          <Button onClick={() => handleOpenSheet()} size="sm">
-            <Plus className="w-4 h-4 mr-2" /> Thêm phòng ban mới
-          </Button>
-        </CardHeader>
-        <CardDescription className="px-6">
-          Tạo, chỉnh sửa và quản lý các phòng ban cho bệnh viện.
-        </CardDescription>
+        <PageHeader
+          title="Quản lý phòng ban"
+          description="Tạo, chỉnh sửa và quản lý các phòng ban cho bệnh viện."
+          icon={FileText}
+          onAdd={() => handleOpenSheet()}
+        />
         <CardContent className="pt-4">
-          <div className="overflow-x-auto">
-            <DepartmentTable
-              departments={departments}
-              onEdit={handleOpenSheet}
-              onToggleActive={handleToggleActive}
-              onDelete={handleDelete}
-            />
+          <div>
+            <AnimatePresence mode="wait">
+              {isTableLoading && departments.length === 0 ? (
+                <motion.div
+                  key="skeleton"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <TableSkeleton
+                    headers={[
+                      "",
+                      "",
+                      "",
+                      "",
+                    ]}
+                    rows={5}
+                  />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key={`page-${currentPage}`}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <DepartmentTable
+                    departments={departments}
+                    onEdit={handleOpenSheet}
+                    onToggleActive={handleToggleActive}
+                    onDelete={handleDelete}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
+
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}

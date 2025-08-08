@@ -2,24 +2,18 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { FileText, Plus } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { FileText } from "lucide-react";
 import { departmentApi } from "@/apis/department-api";
 import { doctorApi } from "@/apis/doctor-api";
-import LoadingPage from "@/pages/common/loading-page";
+import PageHeader from "@/components/private/page-header";
+import TableSkeleton from "@/components/private/table/table-skeleton";
 import { EditModal } from "@/components/common/edit-modal";
 import { handleFetch } from "@/utils/fetch-helper";
 import DoctorTable from "@/components/private/table/doctor-table";
 import Pagination from "@/components/common/pagination";
 import DoctorForm from "@/components/private/form/doctor-form";
-
+import { motion, AnimatePresence } from "framer-motion";
 const Doctors = () => {
   const [doctors, setDoctors] = useState([]);
   const [departments, setDepartments] = useState([]);
@@ -32,6 +26,8 @@ const Doctors = () => {
   const [currentDoctor, setCurrentDoctor] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [isTableLoading, setIsTableLoading] = useState(false);
+
   const [formState, setFormState] = useState({
     fullName: "",
     description: "",
@@ -43,16 +39,16 @@ const Doctors = () => {
   });
 
   const fetchDoctors = useCallback(async (page = 1) => {
+    setIsTableLoading(true);
     await handleFetch({
       apiCall: () => doctorApi.getAll({ page: page - 1, size: 5 }),
       setData: (data) => {
         setDoctors(data.content || []);
         setTotalPages(Number.isInteger(data.totalPages) ? data.totalPages : 1);
       },
-      setLoading,
+      setLoading: setIsTableLoading,
       errorMessage: "Không thể tải danh sách bác sĩ",
     });
-    console.log(doctors)
   }, []);
 
   const fetchDepartments = useCallback(async () => {
@@ -74,9 +70,11 @@ const Doctors = () => {
   }, []);
 
   useEffect(() => {
-    Promise.all([fetchDoctors(currentPage), fetchDepartments(), fetchPositions()]).catch((error) =>
-      toast.error("Lỗi khi tải dữ liệu: " + error.message)
-    );
+    Promise.all([
+      fetchDoctors(currentPage),
+      fetchDepartments(),
+      fetchPositions(),
+    ]).catch((error) => toast.error("Lỗi khi tải dữ liệu: " + error.message));
   }, [fetchDoctors, fetchDepartments, fetchPositions, currentPage]);
 
   const handleInputChange = useCallback((e) => {
@@ -104,7 +102,9 @@ const Doctors = () => {
             description: doctor.description || "",
             avatar: null,
             avatarUrl: doctor.avatarUrl || "",
-            departmentId: doctor.department ? doctor.department.id.toString() : "",
+            departmentId: doctor.department
+              ? doctor.department.id.toString()
+              : "",
             position: doctor.position || "",
             isActive: doctor.isActive,
           }
@@ -132,7 +132,8 @@ const Doctors = () => {
       formData.append("position", formState.position);
       formData.append("isActive", formState.isActive.toString());
       if (formState.avatar) formData.append("avatarFile", formState.avatar);
-      else if (formState.avatarUrl) formData.append("avatarUrl", formState.avatarUrl);
+      else if (formState.avatarUrl)
+        formData.append("avatarUrl", formState.avatarUrl);
 
       const response = currentDoctor
         ? await doctorApi.update(currentDoctor.id, formData)
@@ -150,7 +151,7 @@ const Doctors = () => {
           isActive: true,
         });
         setIsSheetOpen(false);
-        fetchDoctors();
+        await fetchDoctors();
       } else {
         toast.error(response.message);
       }
@@ -166,7 +167,7 @@ const Doctors = () => {
         const response = await doctorApi.delete(id);
         if (response.success) {
           toast.success(response.message);
-          fetchDoctors();
+          await fetchDoctors();
         } else {
           toast.error(response.message);
         }
@@ -182,7 +183,7 @@ const Doctors = () => {
       const response = await doctorApi.hide(id);
       if (response.success) {
         toast.success(response.message);
-        fetchDoctors();
+        await fetchDoctors();
       } else {
         toast.error(response.message);
       }
@@ -196,32 +197,47 @@ const Doctors = () => {
     setIsContentModalOpen(false);
   }, []);
 
-  if (loading && !doctors.length) return <LoadingPage />;
-
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="w-5 h-5 text-primary" />
-            Quản lý bác sĩ
-          </CardTitle>
-          <Button onClick={() => handleOpenSheet()} size="sm">
-            <Plus className="w-4 h-4 mr-2" /> Thêm bác sĩ mới
-          </Button>
-        </CardHeader>
-        <CardDescription className="px-6">
-          Tạo, chỉnh sửa và quản lý thông tin bác sĩ cho bệnh viện.
-        </CardDescription>
+        <PageHeader
+          title="Quản lý bác sĩ"
+          description="Tạo, chỉnh sửa và quản lý thông tin bác sĩ cho bệnh viện."
+          icon={FileText}
+          onAdd={() => handleOpenSheet()}
+        />
         <CardContent className="pt-4">
-          <div className="overflow-x-auto">
-            <DoctorTable
-              doctors={doctors}
-              onEdit={handleOpenSheet}
-              onToggleActive={handleToggleActive}
-              onDelete={handleDelete}
-            />
+          <div>
+            <AnimatePresence mode="wait">
+              {isTableLoading && doctors.length === 0 ? (
+                <motion.div
+                  key="skeleton"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <TableSkeleton headers={["", "", "", ""]} rows={5} />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key={`page-${currentPage}`}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <DoctorTable
+                    doctors={doctors}
+                    onEdit={handleOpenSheet}
+                    onToggleActive={handleToggleActive}
+                    onDelete={handleDelete}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
+
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}

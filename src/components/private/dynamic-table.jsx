@@ -1,4 +1,5 @@
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
+import React from "react";
 
 /**
  * Component bảng linh hoạt để hiển thị các loại dữ liệu khác nhau.
@@ -12,26 +13,35 @@ import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@
  */
 const DynamicTable = ({ headers, data, renderRow, emptyMessage, colSpan }) => {
   return (
-    <Table>
+    <Table className="transition-all duration-300 ease-in-out" >
       <TableHeader>
         <TableRow>
-          {/* Render tiêu đề cột */}
           {headers.map((header, index) => (
-            <TableHead key={index} className={index === headers.length - 1 ? "text-right" : ""}>
+            <TableHead
+              key={index}
+              className={`transition-all duration-300 ease-in-out ${
+                index === headers.length - 1 ? "text-right" : ""
+              }`}
+            >
               {header}
             </TableHead>
           ))}
         </TableRow>
       </TableHeader>
       <TableBody>
-        {/* Kiểm tra xem có dữ liệu không */}
         {data.length ? (
-          // Nếu có dữ liệu, render từng hàng bằng hàm renderRow
-          data.map((item, index) => renderRow(item, index))
+          data.map((item, index) =>
+            React.cloneElement(renderRow(item, index), {
+              className:
+                "transition-all duration-300 ease-in-out",
+            })
+          )
         ) : (
-          // Nếu không có dữ liệu, hiển thị thông báo trống
           <TableRow>
-            <TableCell colSpan={colSpan} className="h-24 text-center">
+            <TableCell
+              colSpan={colSpan}
+              className="h-24 text-center transition-all duration-300 ease-in-out"
+            >
               {emptyMessage}
             </TableCell>
           </TableRow>
@@ -40,5 +50,6 @@ const DynamicTable = ({ headers, data, renderRow, emptyMessage, colSpan }) => {
     </Table>
   );
 };
+
 
 export default DynamicTable;

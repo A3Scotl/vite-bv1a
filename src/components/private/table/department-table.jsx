@@ -4,7 +4,6 @@ import { Edit, Trash2, EyeOff, Eye } from "lucide-react";
 
 const DepartmentTable = ({ departments, onEdit, onToggleActive, onDelete }) => {
   const headers = [
-    "ID",
     "Tên",
     "Hình ảnh",
     "Hoạt động",
@@ -16,7 +15,6 @@ const DepartmentTable = ({ departments, onEdit, onToggleActive, onDelete }) => {
       key={department.id}
       data={department}
       cells={[
-        { value: (item) => item.id, className: "font-medium" },
         { value: (item) => item.name },
         {
           type: "image",

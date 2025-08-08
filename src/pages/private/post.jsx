@@ -2,24 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { FileText, Plus } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { FileText } from "lucide-react";
 import { postApi } from "@/apis/post-api";
-import LoadingPage from "@/pages/common/loading-page";
 import { EditModal } from "@/components/common/edit-modal";
 import { handleFetch } from "@/utils/fetch-helper";
-
+import PageHeader from "@/components/private/page-header";
 import PostTable from "@/components/private/table/post-table";
 import Pagination from "@/components/common/pagination";
 import PostForm from "@/components/private/form/post-form";
-
+import TableSkeleton from "@/components/private/table/table-skeleton";
+import { motion, AnimatePresence } from "framer-motion";
 const Posts = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -29,6 +22,8 @@ const Posts = () => {
   const [postTypes, setPostTypes] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [isTableLoading, setIsTableLoading] = useState(false);
+
   const [formState, setFormState] = useState({
     title: "",
     content: "",
@@ -40,13 +35,14 @@ const Posts = () => {
   });
 
   const fetchPosts = async (page = 1) => {
+    setIsTableLoading(true);
     await handleFetch({
       apiCall: () => postApi.getAll({ page: page - 1, size: 5 }),
       setData: (data) => {
         setPosts(data.content || []);
         setTotalPages(Number.isInteger(data.totalPages) ? data.totalPages : 1);
       },
-      setLoading,
+      setLoading: setIsTableLoading,
       errorMessage: "Không thể tải bài viết",
     });
   };
@@ -80,7 +76,6 @@ const Posts = () => {
       }
     };
     loadData();
-    // eslint-disable-next-line
   }, [currentPage]);
 
   const handleInputChange = (e) => {
@@ -122,7 +117,7 @@ const Posts = () => {
   };
 
   const handleStatusToggle = () => {
-    const now = new Date().toISOString(); // Sử dụng thời gian hiện tại: 08:48 PM +07, 06/08/2025
+    const now = new Date().toISOString();
     setFormState((prev) => ({
       ...prev,
       status: prev.status === "PRIVATE" ? "PUBLIC" : "PRIVATE",
@@ -139,7 +134,8 @@ const Posts = () => {
     formData.append("status", formState.status);
     formData.append("publishedAt", formState.publishedAt);
     formData.append("type", formState.type);
-    if (formState.thumbnailFile) formData.append("thumbnail", formState.thumbnailFile);
+    if (formState.thumbnailFile)
+      formData.append("thumbnail", formState.thumbnailFile);
 
     try {
       const response = currentPost
@@ -184,31 +180,55 @@ const Posts = () => {
     setIsContentModalOpen(false);
   };
 
-  if (loading && !posts.length) return <LoadingPage />;
-
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="w-5 h-5 text-primary" />
-            Quản lý bài viết
-          </CardTitle>
-          <Button onClick={() => handleOpenSheet()} size="sm">
-            <Plus className="w-4 h-4 mr-2" /> Thêm bài viết
-          </Button>
-        </CardHeader>
-        <CardDescription className="px-6">
-          Tạo, chỉnh sửa và xuất bản bài viết cho website.
-        </CardDescription>
+        <PageHeader
+          title="Quản lý bài viết"
+          description="Tạo, chỉnh sửa và xuất bản bài viết cho website."
+          icon={FileText}
+          onAdd={() => handleOpenSheet()}
+        />
         <CardContent className="pt-4">
-          <div className="overflow-x-auto">
-            <PostTable
-              posts={posts}
-              onEdit={handleOpenSheet}
-              onDelete={handleDelete}
-            />
+          <div>
+            <AnimatePresence mode="wait">
+              {isTableLoading && posts.length === 0 ? (
+                <motion.div
+                  key="skeleton"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <TableSkeleton
+                    headers={[
+                      "",
+                      "",
+                      "",
+                      "",
+                      "",
+                    ]}
+                    rows={5}
+                  />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key={`page-${currentPage}`}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <PostTable
+                    posts={posts}
+                    onEdit={handleOpenSheet}
+                    onDelete={handleDelete}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
+
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
@@ -242,7 +262,6 @@ const Posts = () => {
           setIsSheetOpen={setIsSheetOpen}
         />
       </EditModal>
-      
     </div>
   );
 };
