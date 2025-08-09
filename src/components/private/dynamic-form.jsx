@@ -1,7 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FileText } from "lucide-react";
 import ContentEditModal from "@/components/common/content-edit-modal";
@@ -16,26 +22,42 @@ import ContentEditModal from "@/components/common/content-edit-modal";
  * @param {boolean} props.loading - Trạng thái loading của form.
  * @param {function} props.onCancel - Hàm xử lý khi hủy form.
  */
-const DynamicForm = ({ formState, fields, handleSubmit, loading, onCancel }) => {
+const DynamicForm = ({
+  formState,
+  fields,
+  handleSubmit,
+  loading,
+  onCancel,
+}) => {
   return (
     <form onSubmit={handleSubmit} className="grid gap-4">
       {fields.map((field, index) => (
         <div key={index} className="grid gap-2">
           {field.label && <Label htmlFor={field.id}>{field.label}</Label>}
 
-          {field.type === "input" && (
-            <Input
-              id={field.id}
-              value={formState[field.name]}
-              onChange={field.onChange}
-              type={field.inputType || "text"}
-              accept={field.accept}
-              required={field.required}
-            />
-          )}
+          {field.type === "input" &&
+            (field.inputType === "file" ? (
+              <Input
+                id={field.id}
+                type="file"
+                name={field.name}
+                accept={field.accept}
+                onChange={field.onChange}
+                required={field.required}
+              />
+            ) : (
+              <Input
+                id={field.id}
+                value={formState[field.name] || ""}
+                onChange={field.onChange}
+                type={field.inputType || "text"}
+                accept={field.accept}
+                required={field.required}
+              />
+            ))}
 
-          {field.type === "select" && (
-            field.loading ? (
+          {field.type === "select" &&
+            (field.loading ? (
               <Skeleton className="h-10 w-full" />
             ) : (
               <Select
@@ -54,8 +76,7 @@ const DynamicForm = ({ formState, fields, handleSubmit, loading, onCancel }) => 
                   ))}
                 </SelectContent>
               </Select>
-            )
-          )}
+            ))}
 
           {field.type === "content-editor" && (
             <>
@@ -77,14 +98,16 @@ const DynamicForm = ({ formState, fields, handleSubmit, loading, onCancel }) => 
             </>
           )}
 
-          {field.type === "file-preview" && formState[field.previewUrlField] && !formState[field.fileField] && (
-            <img
-              src={formState[field.previewUrlField] || "/placeholder.svg"}
-              alt={field.previewAltText}
-              className="w-24 h-24 object-cover rounded-md mt-2"
-              loading="lazy"
-            />
-          )}
+          {field.type === "file-preview" &&
+            formState[field.previewUrlField] &&
+            !formState[field.fileField] && (
+              <img
+                src={formState[field.previewUrlField] || "/placeholder.svg"}
+                alt={field.previewAltText}
+                className="w-24 h-24 object-cover rounded-md mt-2"
+                loading="lazy"
+              />
+            )}
         </div>
       ))}
 

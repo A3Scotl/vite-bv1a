@@ -5,7 +5,7 @@ import { Routes, Route, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/context/auth-context";
 import { useScrollToTop } from "@/hooks/use-scroll-to-top";
 import { AnimatePresence, motion } from "framer-motion";
-
+import { SiteConfigProvider } from "@/context/site-config-context";
 import PublicLayout from "@/layouts/public-layout";
 import PrivateLayout from "@/layouts/private-layout";
 
@@ -27,6 +27,7 @@ const ServiceListPage = lazy(() => import("@/pages/public/service-list-page"));
 const ServicePricingPage = lazy(() => import("@/pages/public/service-pricing-page"));
 const PostPage = lazy(() => import("@/pages/public/post-page"));
 const Dashboard = lazy(() => import("@/pages/private/dashboard-page"));
+const SỉteConfig = lazy(() => import("@/pages/private/site-config.jsx"));
 const Appointment = lazy(() => import("@/pages/private/appointment"));
 const Doctors = lazy(() => import("@/pages/private/doctors"));
 const Departments = lazy(() => import("@/pages/private/departments"));
@@ -79,7 +80,7 @@ function AppRoutes() {
             <Route path="/dashboard/posts" element={<PageTransition><Post /></PageTransition>} />
             <Route path="/dashboard/account" element={<PageTransition><Account /></PageTransition>} />
             <Route path="/dashboard/statistics" element={<PageTransition><Statistics /></PageTransition>} />
-            <Route path="/dashboard/settings" element={<PageTransition><Setting /></PageTransition>} />
+            <Route path="/dashboard/settings" element={<PageTransition><SỉteConfig /></PageTransition>} />
           </Route>
           <Route path="*" element={<PageTransition><NotFoundPage /></PageTransition>} />
         </Routes>
@@ -91,9 +92,11 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <Toaster position="top-right" richColors closeButton duration={3000} />
-      <AppRoutes />
-    </AuthProvider>
+    <SiteConfigProvider>
+      <AuthProvider>
+        <Toaster position="top-right" richColors closeButton duration={3000} />
+        <AppRoutes />
+      </AuthProvider>
+    </SiteConfigProvider>
   );
 }

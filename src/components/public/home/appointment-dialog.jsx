@@ -97,7 +97,7 @@ const AppointmentDialog = ({ children }) => {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:8080/api/v1/appointments", {
+      const res = await fetch("https://aaamovies.onrender.com/api/v1/appointments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),

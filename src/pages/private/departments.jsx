@@ -60,6 +60,7 @@ const Departments = () => {
   }, []);
 
   const handleOpenSheet = useCallback((department = null) => {
+    setLoading(false);
     setCurrentDepartment(department);
     setFormState(
       department

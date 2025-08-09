@@ -38,7 +38,7 @@ const PostForm = ({
       id: "postType",
       name: "type",
       label: "Loại bài viết",
-      loading: loading, // Giả định loading ở đây cũng áp dụng cho postTypes
+      loading: loading, 
       placeholder: "Chọn loại...",
       options: postTypes.map((type) => ({ value: type.id, label: type.name })),
       onValueChange: handleSelectType,

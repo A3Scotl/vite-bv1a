@@ -51,4 +51,9 @@ export const mainMenuItems = [
     url: "/dashboard/statistics",
     icon: BarChart,
   },
+    {
+    title: "Settings",
+    url: "/dashboard/settings",
+    icon: BarChart,
+  },
 ]

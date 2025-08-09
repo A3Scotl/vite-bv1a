@@ -16,11 +16,13 @@ import {
   Youtube,
   ChevronDown,
 } from "lucide-react";
-
+import { useSiteConfig } from "@/context/site-config-context";
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [language, setLanguage] = useState("vi");
   const [openDropdown, setOpenDropdown] = useState(null);
+  const { siteConfig } = useSiteConfig();
+  if (!siteConfig) return null;
 
   const toggleDropdown = (name) => {
     setOpenDropdown(openDropdown === name ? null : name);
@@ -35,16 +37,16 @@ const Header = () => {
             <div className="flex items-center space-x-6">
               <div className="flex items-center space-x-2">
                 <Phone className="w-4 h-4" />
-                <span className="uppercase">Hotline: 1900 0000</span>
+                <span className="uppercase">Hotline: {siteConfig?.email}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Mail className="w-4 h-4" />
-                <span className="uppercase">info@benhvien1a.com</span>
+                <span className="uppercase">{siteConfig?.email}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Clock className="w-4 h-4" />
                 <span className="uppercase">
-                  Mở cửa: 7:00 - 20:00 (Thứ 2 - CN)
+                 {siteConfig?.workingHours}
                 </span>
               </div>
             </div>
@@ -73,7 +75,7 @@ const Header = () => {
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-3">
               <img
-                src="/logo/BENH-VIEN-1A-1-2.webp"
+                src={siteConfig?.logoUrl}
                 alt="Bệnh viện 1A"
                 className="h-18 object-contain"
               />

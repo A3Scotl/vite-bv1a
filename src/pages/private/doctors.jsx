@@ -94,6 +94,7 @@ const Doctors = () => {
   }, []);
 
   const handleOpenSheet = useCallback((doctor = null) => {
+    setLoading(false);
     setCurrentDoctor(doctor);
     setFormState(
       doctor

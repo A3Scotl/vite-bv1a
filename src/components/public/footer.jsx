@@ -11,10 +11,12 @@ import {
   Instagram,
   Youtube,
 } from "lucide-react";
+import { useSiteConfig } from "@/context/site-config-context";
 
 const Footer = () => {
   const { user } = useAuth();
-
+  const { siteConfig } = useSiteConfig();
+  if (!siteConfig) return null;
   return (
     <footer className="bg-gray-900 text-white py-16">
       <div className="max-w-7xl mx-auto px-4">
@@ -22,14 +24,18 @@ const Footer = () => {
           {/* Company Info */}
           <div>
             <div className="flex items-center space-x-3 mb-6">
-              <div className="bg-blue-600 p-2 rounded-lg">
-                <Stethoscope className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-xl font-bold">Bệnh viện 1A</h3>
+              {/* Logo */}
+              <Link to="/" className="flex items-center space-x-3">
+                <img
+                  src={siteConfig?.logoUrl}
+                  alt="Bệnh viện 1A"
+                  className="w-40 object-contain"
+                />
+              </Link>
             </div>
             <p className="text-gray-400 mb-4">
-              Chăm sóc s���c khỏe toàn diện với đội ngũ bác sĩ giàu kinh nghiệm
-              và trang thiết bị hiện đại.
+              Chăm sóc sức khỏe toàn diện với đội ngũ bác sĩ giàu kinh nghiệm và
+              trang thiết bị hiện đại.
             </p>
             <div className="flex space-x-4">
               <Facebook className="w-5 h-5 text-gray-400 hover:text-blue-400 cursor-pointer transition-colors" />
@@ -147,21 +153,21 @@ const Footer = () => {
               <div className="flex items-start space-x-3">
                 <MapPin className="w-5 h-5 text-blue-400 mt-1 flex-shrink-0" />
                 <div>
-                  <p className="text-gray-400">123 Đường ABC, Quận 1</p>
-                  <p className="text-gray-400">TP. Hồ Chí Minh</p>
+                  <p className="text-gray-400">{siteConfig?.address}</p>
+                
                 </div>
               </div>
               <div className="flex items-center space-x-3">
                 <Phone className="w-5 h-5 text-blue-400 flex-shrink-0" />
-                <p className="text-gray-400">Hotline: 1900 0000</p>
+                <p className="text-gray-400">Hotline: {siteConfig?.phoneNumber}</p>
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="w-5 h-5 text-blue-400 flex-shrink-0" />
-                <p className="text-gray-400">info@benhvien1a.com</p>
+                <p className="text-gray-400">{siteConfig?.email}</p>
               </div>
               <div className="flex items-center space-x-3">
                 <Clock className="w-5 h-5 text-blue-400 flex-shrink-0" />
-                <p className="text-gray-400">7:00 - 20:00 (Thứ 2 - CN)</p>
+                <p className="text-gray-400">{siteConfig?.workingHours}</p>
               </div>
             </div>
           </div>
@@ -175,21 +181,21 @@ const Footer = () => {
               lưu.
             </p>
             <div className="flex items-center space-x-6 mt-4 md:mt-0">
-              {!user ? (
+              {/* {!user ? (
                 <Link
                   to="/login"
                   className="text-gray-400 hover:text-white transition-colors"
                 >
-                  Đăng nhập quản trị
+                  
                 </Link>
               ) : (
                 <Link
                   to="/dashboard"
                   className="text-gray-400 hover:text-white transition-colors"
                 >
-                  Dashboard
+                  
                 </Link>
-              )}
+              )} */}
               <Link
                 to="/privacy"
                 className="text-gray-400 hover:text-white transition-colors text-sm"
