@@ -61,7 +61,7 @@ const DepartmentDetailPage = () => {
       <div className="min-h-screen bg-gray-50">
         {/* Breadcrumb Skeleton */}
         <div className="bg-white border-b">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex items-center space-x-2">
               <Skeleton className="h-4 w-16" />
               <span>/</span>
@@ -72,7 +72,7 @@ const DepartmentDetailPage = () => {
           </div>
         </div>
 
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Skeleton className="h-6 w-48 mb-6" />
 
           <div className="grid lg:grid-cols-3 gap-8">
