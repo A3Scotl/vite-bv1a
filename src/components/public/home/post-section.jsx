@@ -92,7 +92,7 @@ const PostsSection = () => {
                     }}
                   />
 
-                  <Link to={`/tin-tuc-hoat-dong/${post.slug}`}>
+                  <Link to={`/bai-viet/${post.slug}`}>
                     <Button variant="outline" className="w-full bg-transparent">
                       Đọc thêm
                     </Button>

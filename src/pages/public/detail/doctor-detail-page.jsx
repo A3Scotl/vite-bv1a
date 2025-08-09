@@ -36,7 +36,7 @@ export default function DoctorDetailPage() {
       <div className="min-h-screen bg-gray-50">
         {/* Breadcrumb Skeleton */}
         <div className="bg-white border-b">
-          <div className="mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex items-center space-x-2">
               <Skeleton className="h-4 w-16" />
               <span>/</span>

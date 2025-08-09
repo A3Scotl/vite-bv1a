@@ -1,59 +1,140 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useParams, Link } from "react-router-dom"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
-import { ArrowLeft, Users, Calendar, Phone, Mail, MapPin, Clock, User } from "lucide-react"
-import { departmentApi } from "@/apis/department-api"
-import { doctorApi } from "@/apis/doctor-api"
-import { handleFetch } from "@/utils/fetch-helper"
-import LoadingPage from "@/pages/common/loading-page"
-import { toast } from "sonner"
-import QuickContact from "../../../components/public/quick-contact"
+import { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  ArrowLeft,
+  Users,
+  Calendar,
+  Phone,
+  Mail,
+  MapPin,
+  Clock,
+  User,
+} from "lucide-react";
+import { departmentApi } from "@/apis/department-api";
+import { doctorApi } from "@/apis/doctor-api";
+import { handleFetch } from "@/utils/fetch-helper";
+import LoadingPage from "@/pages/common/loading-page";
+import { toast } from "sonner";
+import QuickContact from "../../../components/public/quick-contact";
 
 const DepartmentDetailPage = () => {
-  const { slug } = useParams()
-  const [department, setDepartment] = useState(null)
-  const [doctors, setDoctors] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [doctorsLoading, setDoctorsLoading] = useState(true)
+  const { slug } = useParams();
+  const [department, setDepartment] = useState(null);
+  const [doctors, setDoctors] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [doctorsLoading, setDoctorsLoading] = useState(true);
 
   useEffect(() => {
     if (slug) {
-      fetchDepartmentDetail()
-      fetchDepartmentDoctors()
+      fetchDepartmentDetail();
+      fetchDepartmentDoctors();
     }
-  }, [slug])
+  }, [slug]);
 
   const fetchDepartmentDetail = async () => {
     handleFetch({
-      apiCall:()=> departmentApi.getBySlug(slug),
+      apiCall: () => departmentApi.getBySlug(slug),
       setData: setDepartment,
       setLoading,
-    })
-  }
+    });
+  };
 
   const fetchDepartmentDoctors = async () => {
-        handleFetch({
-      apiCall:()=> doctorApi.getAllByDepartmentSlug(slug),
-      setData:(data)=>{
-        setDoctors(data.content)
-        console.log(data)
-      } ,
+    handleFetch({
+      apiCall: () => doctorApi.getAllByDepartmentSlug(slug),
+      setData: (data) => {
+        setDoctors(data.content);
+        console.log(data);
+      },
       setLoading: setDoctorsLoading,
-    })
-  }
+    });
+  };
 
-  if (loading) return <LoadingPage />
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        {/* Breadcrumb Skeleton */}
+        <div className="bg-white border-b">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="flex items-center space-x-2">
+              <Skeleton className="h-4 w-16" />
+              <span>/</span>
+              <Skeleton className="h-4 w-24" />
+              <span>/</span>
+              <Skeleton className="h-4 w-32" />
+            </div>
+          </div>
+        </div>
+
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <Skeleton className="h-6 w-48 mb-6" />
+
+          <div className="grid lg:grid-cols-3 gap-8">
+            {/* Main Content Skeleton */}
+            <div className="lg:col-span-2 space-y-8">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex flex-col md:flex-row gap-6">
+                    <Skeleton className="w-40 h-40 rounded-full" />
+                    <div className="flex-1 space-y-4">
+                      <Skeleton className="h-8 w-3/4" />
+                      <Skeleton className="h-4 w-1/2" />
+                      <Skeleton className="h-4 w-1/3" />
+                      <div className="flex gap-2">
+                        <Skeleton className="h-6 w-20" />
+                        <Skeleton className="h-6 w-24" />
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Content Skeletons */}
+              {[1, 2, 3].map((i) => (
+                <Card key={i}>
+                  <CardContent className="p-6">
+                    <Skeleton className="h-6 w-48 mb-4" />
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-5/6" />
+                      <Skeleton className="h-4 w-4/5" />
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* Sidebar Skeleton */}
+            <div className="space-y-6">
+              <Card>
+                <CardContent className="p-6">
+                  <Skeleton className="h-6 w-32 mb-4" />
+                  <div className="space-y-3">
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!department) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Không tìm thấy khoa</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+            Không tìm thấy khoa
+          </h1>
           <Link to="/departments">
             <Button variant="outline">
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -62,21 +143,26 @@ const DepartmentDetailPage = () => {
           </Link>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="max-w-6xl mx-auto px-4 bg-white shadow-sm border-b">
-        <div className=" sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center w-full justify-center space-x-4">
-              <div >
-                <h1 className="text-3xl font-bold text-gray-900">{department.name}</h1>
-                <p className="text-gray-600 mt-1 text-center">Thông tin chi tiết về khoa</p>
-              </div>
-            </div>
+      <div className="bg-white border-b">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center space-x-2 text-sm text-gray-600">
+            <Link to="/" className="hover:text-blue-600 transition-colors">
+              Trang chủ
+            </Link>
+            <span>/</span>
+            <Link
+              to="/he-thong-khoa-phong"
+              className="hover:text-blue-600 transition-colors"
+            >
+              Hệ thống khoa phòng
+            </Link>
+            <span>/</span>
+            <span className="text-gray-900">{department.name}</span>
           </div>
         </div>
       </div>
@@ -103,7 +189,9 @@ const DepartmentDetailPage = () => {
                 )}
                 <div
                   className="prose max-w-none text-gray-700"
-                  dangerouslySetInnerHTML={{ __html: department.description || "Chưa có mô tả" }}
+                  dangerouslySetInnerHTML={{
+                    __html: department.description || "Chưa có mô tả",
+                  }}
                 />
               </CardContent>
             </Card>
@@ -120,7 +208,10 @@ const DepartmentDetailPage = () => {
                 {doctorsLoading ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {[...Array(4)].map((_, index) => (
-                      <div key={index} className="flex items-center space-x-4 p-4 border rounded-lg">
+                      <div
+                        key={index}
+                        className="flex items-center space-x-4 p-4 border rounded-lg"
+                      >
                         <Skeleton className="w-16 h-16 rounded-full" />
                         <div className="flex-1 space-y-2">
                           <Skeleton className="h-4 w-3/4" />
@@ -151,15 +242,25 @@ const DepartmentDetailPage = () => {
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-lg font-semibold text-gray-900 truncate">{doctor.fullName}</h3>
-                          {doctor.position && <p className="text-sm text-primary font-medium">{doctor.position}</p>}
+                          <h3 className="text-lg font-semibold text-gray-900 truncate">
+                            {doctor.fullName}
+                          </h3>
+                          {doctor.position && (
+                            <p className="text-sm text-primary font-medium">
+                              {doctor.position}
+                            </p>
+                          )}
                           {doctor.description && (
                             <p className="text-sm text-gray-600 line-clamp-2 mt-1">
                               {doctor.description.replace(/<[^>]*>/g, "")}
                             </p>
                           )}
                           <Link to={`/doi-ngu-chuyen-gia/${doctor.slug}`}>
-                            <Button variant="outline" size="sm" className="mt-2 bg-transparent">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="mt-2 bg-transparent"
+                            >
                               Xem chi tiết
                             </Button>
                           </Link>
@@ -170,19 +271,18 @@ const DepartmentDetailPage = () => {
                 ) : (
                   <div className="text-center py-8">
                     <User className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-500">Chưa có bác sĩ nào trong khoa này</p>
+                    <p className="text-gray-500">
+                      Chưa có bác sĩ nào trong khoa này
+                    </p>
                   </div>
                 )}
               </CardContent>
             </Card>
           </div>
-
-           
         </div>
-     
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default DepartmentDetailPage
+export default DepartmentDetailPage;
