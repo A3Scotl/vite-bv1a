@@ -1,150 +1,67 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { toast } from "sonner";
+import { useEffect, useContext } from "react";
+import { useDebounce } from "use-debounce";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { FileText } from "lucide-react";
-import { departmentApi } from "@/apis/department-api";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import PageHeader from "@/components/private/page-header";
-import TableSkeleton from "@/components/private/table/table-skeleton";
-import ContentEditModal from "@/components/common/content-edit-modal";
-import { EditModal } from "@/components/common/edit-modal";
-import { handleFetch } from "@/utils/fetch-helper";
 import DepartmentTable from "@/components/private/table/department-table";
 import Pagination from "@/components/common/pagination";
+import TableSkeleton from "@/components/private/table/table-skeleton";
 import { motion, AnimatePresence } from "framer-motion";
+import { EditModal } from "@/components/common/edit-modal";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import ContentEditModal from "@/components/common/content-edit-modal";
+import { DepartmentContext } from "@/context/department-context";
 
-const Departments = () => {
-  const [departments, setDepartments] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const [isContentModalOpen, setIsContentModalOpen] = useState(false);
-  const [currentDepartment, setCurrentDepartment] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [isTableLoading, setIsTableLoading] = useState(false);
-  const [formState, setFormState] = useState({
-    name: "",
-    description: "",
-    thumbnailFile: null,
-    thumbnail: "",
-    isActive: true,
-  });
+export default function Departments() {
+  const {
+    departments,
+    prevDepartments,
+    currentDepartment,
+    formState,
+    setFormState,
+    isSheetOpen,
+    setIsSheetOpen,
+    isContentModalOpen,
+    setIsContentModalOpen,
+    isTableLoading,
+    isFormLoading,
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    fetchDepartments,
+    handleOpenSheet,
+    handleSubmit,
+    handleToggleActive,
+    handleDelete,
+    handleInputChange,
+    handleContentSave,
+    searchQuery,
+    setSearchQuery,
+    filterStatus,
+    setFilterStatus,
+  } = useContext(DepartmentContext);
 
-  const fetchDepartments = useCallback(async (page = 1) => {
-    setIsTableLoading(true);
-    await handleFetch({
-      apiCall: () => departmentApi.getAll({ page: page - 1, size: 5 }),
-      setData: (data) => {
-        setDepartments(data.content || []);
-        setTotalPages(Number.isInteger(data.totalPages) ? data.totalPages : 1);
-      },
-      setLoading: setIsTableLoading,
-      errorMessage: "Không thể tải danh sách phòng ban",
-    });
-  }, []);
+  // Debounce các bộ lọc
+  const [debouncedSearch] = useDebounce(searchQuery, 300);
+  const [debouncedStatus] = useDebounce(filterStatus, 300);
 
   useEffect(() => {
-    fetchDepartments(currentPage);
-  }, [fetchDepartments, currentPage]);
-
-  const handleInputChange = useCallback((e) => {
-    const { id, value, type, checked, files } = e.target;
-    setFormState((prev) => ({
-      ...prev,
-      [id]: type === "checkbox" ? checked : files ? files[0] : value,
-    }));
-  }, []);
-
-  const handleOpenSheet = useCallback((department = null) => {
-    setLoading(false);
-    setCurrentDepartment(department);
-    setFormState(
-      department
-        ? {
-            name: department.name,
-            description: department.description || "",
-            thumbnailFile: null,
-            thumbnail: department.thumbnail || "",
-            isActive: department.isActive,
-          }
-        : {
-            name: "",
-            description: "",
-            thumbnailFile: null,
-            thumbnail: "",
-            isActive: true,
-          }
-    );
-    setIsSheetOpen(true);
-  }, []);
-
-  const handleSubmit = useCallback(
-    async (e) => {
-      e.preventDefault();
-      setLoading(true);
-      const formData = new FormData();
-      formData.append("name", formState.name);
-      formData.append("description", formState.description);
-      formData.append("isActive", formState.isActive.toString());
-      if (formState.thumbnailFile)
-        formData.append("thumbnail", formState.thumbnailFile);
-
-      const response = currentDepartment
-        ? await departmentApi.update(currentDepartment.id, formData)
-        : await departmentApi.create(formData);
-
-      if (response.success) {
-        toast.success(response.message);
-        setIsSheetOpen(false);
-        await fetchDepartments();
-      } else {
-        toast.error(response.message);
-      }
-      setLoading(false);
-    },
-    [currentDepartment, formState, fetchDepartments]
-  );
-
-  const handleDelete = useCallback(
-    async (id) => {
-      if (window.confirm("Bạn có chắc muốn xóa phòng ban này?")) {
-        setLoading(true);
-        const response = await departmentApi.delete(id);
-        if (response.success) {
-          toast.success(response.message);
-          await fetchDepartments();
-        } else {
-          toast.error(response.message);
-        }
-        setLoading(false);
-      }
-    },
-    [fetchDepartments]
-  );
-
-  const handleToggleActive = useCallback(
-    async (id) => {
-      setLoading(true);
-      const response = await departmentApi.hide(id);
-      if (response.success) {
-        toast.success(response.message);
-        await fetchDepartments();
-      } else {
-        toast.error(response.message);
-      }
-      setLoading(false);
-    },
-    [fetchDepartments]
-  );
-
-  const handleContentSave = useCallback((newContent) => {
-    setFormState((prev) => ({ ...prev, description: newContent }));
-    setIsContentModalOpen(false);
-  }, []);
+    fetchDepartments(currentPage, {
+      searchQuery: debouncedSearch,
+      filterStatus: debouncedStatus,
+    });
+  }, [fetchDepartments, currentPage, debouncedSearch, debouncedStatus]);
 
   return (
     <div className="space-y-6">
@@ -155,46 +72,65 @@ const Departments = () => {
           icon={FileText}
           onAdd={() => handleOpenSheet()}
         />
-        <CardContent className="pt-4">
-          <div>
-            <AnimatePresence mode="wait">
-              {isTableLoading && departments.length === 0 ? (
-                <motion.div
-                  key="skeleton"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <TableSkeleton
-                    headers={[
-                      "",
-                      "",
-                      "",
-                      "",
-                    ]}
-                    rows={5}
-                  />
-                </motion.div>
-              ) : (
-                <motion.div
-                  key={`page-${currentPage}`}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <DepartmentTable
-                    departments={departments}
-                    onEdit={handleOpenSheet}
-                    onToggleActive={handleToggleActive}
-                    onDelete={handleDelete}
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
+        <CardContent className="pt-0">
+          <div className="flex gap-4 mb-2">
+            <Input
+              placeholder="Tìm kiếm theo tên phòng ban..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="max-w-sm"
+            />
+            <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Lọc theo trạng thái" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả trạng thái</SelectItem>
+                <SelectItem value="ACTIVE">Hoạt động</SelectItem>
+                <SelectItem value="INACTIVE">Không hoạt động</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-
+          <AnimatePresence mode="wait">
+            {isTableLoading && prevDepartments.length === 0 ? (
+              <motion.div
+                key="skeleton"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <TableSkeleton headers={["", "", "", "", ""]} rows={5} />
+              </motion.div>
+            ) : departments.length === 0 && !isTableLoading ? (
+              <motion.div
+                key="empty"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <p className="text-center text-muted-foreground">
+                  Không tìm thấy phòng ban nào. Vui lòng thử điều chỉnh bộ lọc.
+                </p>
+              </motion.div>
+            ) : (
+              <motion.div
+                key={`page-${currentPage}`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.5, ease: "easeInOut" }}
+              >
+                <DepartmentTable
+                  departments={isTableLoading ? prevDepartments : departments}
+                  onEdit={handleOpenSheet}
+                  onDelete={handleDelete}
+                  onToggleActive={handleToggleActive}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
@@ -202,7 +138,6 @@ const Departments = () => {
           />
         </CardContent>
       </Card>
-
       <EditModal
         isOpen={isSheetOpen}
         onOpenChange={setIsSheetOpen}
@@ -223,7 +158,6 @@ const Departments = () => {
               required
             />
           </div>
-
           <div className="grid gap-2">
             <Label>Mô tả</Label>
             <Button
@@ -242,7 +176,6 @@ const Departments = () => {
               onClose={() => setIsContentModalOpen(false)}
             />
           </div>
-
           <div className="grid gap-2">
             <Label htmlFor="thumbnailFile">Hình ảnh đại diện</Label>
             <Input
@@ -260,7 +193,6 @@ const Departments = () => {
               />
             )}
           </div>
-
           <div className="flex justify-end gap-4 mt-6">
             <Button
               type="button"
@@ -270,14 +202,12 @@ const Departments = () => {
             >
               Hủy
             </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? "Đang lưu..." : "Lưu thay đổi"}
+            <Button type="submit" disabled={isFormLoading}>
+              {isFormLoading ? "Đang lưu..." : "Lưu thay đổi"}
             </Button>
           </div>
         </form>
       </EditModal>
     </div>
   );
-};
-
-export default Departments;
+}

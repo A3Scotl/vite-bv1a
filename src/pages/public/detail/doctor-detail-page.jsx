@@ -9,11 +9,12 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { handleFetch } from "@/utils/fetch-helper"
-import { ArrowLeft, Phone, Mail, MapPin, Calendar, Award, GraduationCap, Stethoscope, Clock } from 'lucide-react'
+import { ArrowLeft, Phone, Mail, MapPin, Calendar, Award, GraduationCap, Stethoscope, Clock, Home, ChevronLeft, ChevronRight } from 'lucide-react'
 import AppointmentDialog from "@/components/public/home/appointment-dialog"
 import ImageReveal from "@/components/common/image-reveal"
 import PageTransition from "@/components/common/page-transition"
 import { NewsSection } from "@/components/section/news-section"
+import BreadCrumb from "../../../components/public/bread-crumb"
 export default function DoctorDetailPage() {
   const { slug } = useParams()
   const [doctor, setDoctor] = useState(null)
@@ -120,23 +121,9 @@ export default function DoctorDetailPage() {
     <PageTransition>
       <div className="min-h-screen bg-gray-50">
         {/* Breadcrumb */}
-        <div className="bg-white border-b">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
-              <Link to="/" className="hover:text-blue-600 transition-colors">
-                Trang chủ
-              </Link>
-              <span>/</span>
-              <Link to="/doi-ngu-chuyen-gia" className="hover:text-blue-600 transition-colors">
-                Đội ngũ chuyên gia
-              </Link>
-              <span>/</span>
-              <span className="text-gray-900">{doctor.fullName}</span>
-            </div>
-          </div>
-        </div>
+        <BreadCrumb slug={'doi-ngu-chuyen-gia'} listName={"Đội ngũ chuyên gia"} detailName={doctor.fullName}/>
 
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
          
 
           <div className="grid lg:grid-cols-3 gap-8">

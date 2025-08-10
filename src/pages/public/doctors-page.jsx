@@ -96,7 +96,7 @@ const DoctorsPage = () => {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4">
+      <main className="max-w-5xl mx-auto px-4">
         <div className="space-y-4 md:space-y-6">
           {loading && !filteredDoctors.length ? (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

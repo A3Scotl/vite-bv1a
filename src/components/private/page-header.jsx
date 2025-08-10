@@ -4,8 +4,8 @@ import { Plus } from "lucide-react";
 
 const PageHeader = ({ title, description, icon: Icon, onAdd }) => {
   return (
-    <CardHeader className="flex flex-row items-center justify-between pb-2">
-      <div className="space-y-1">
+    <CardHeader className="flex flex-row items-center justify-between pb-0">
+      <div className="space-y-0">
         <CardTitle className="flex items-center gap-2">
           <Icon className="w-5 h-5 text-primary" />
           {title}

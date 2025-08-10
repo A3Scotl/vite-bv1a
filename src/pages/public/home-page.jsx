@@ -6,16 +6,26 @@ import PostSection from "@/components/public/home/post-section";
 import BannerSection from "@/components/public/banner-section";
 const HomePage = () => {
   return (
-    <>
+    <div className="bg-gray-50">
     <BannerSection/>
       {/* <HeroSection /> */}
-      <div className="max-w-6xl mx-auto px-4">
+      <div className="max-w-5xl mx-auto px-4">
 
         {/* <DepartmentsSection /> */}
-        {/* <DoctorsSection /> */}
+        <DoctorsSection />
         <PostSection />
+
       </div>
-    </>
+         <BannerSection/>
+      <div className="max-w-5xl mx-auto px-4">
+
+        {/* <DepartmentsSection /> */}
+        <DoctorsSection />
+        <PostSection />
+
+      </div>
+  
+    </div>
   );
 };
 

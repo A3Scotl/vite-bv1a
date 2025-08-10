@@ -55,7 +55,7 @@ export function SidebarDashboard() {
   const isActive = (url) => location.pathname === url;
 
   return (
-    <Sidebar className="border-r border-border/40 bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/60">
+    <Sidebar className="overflow-x-hidden border-r border-border/40 bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/60">
       <SidebarHeader className="px-4 py-0 pt-2 border-b border-border/40">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">

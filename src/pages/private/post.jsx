@@ -1,82 +1,74 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { toast } from "sonner";
+import { useEffect, useMemo, useContext } from "react";
+import { useDebounce } from "use-debounce";
 import { Card, CardContent } from "@/components/ui/card";
 import { FileText } from "lucide-react";
-import { postApi } from "@/apis/post-api";
-import { EditModal } from "@/components/common/edit-modal";
-import { handleFetch } from "@/utils/fetch-helper";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import PageHeader from "@/components/private/page-header";
 import PostTable from "@/components/private/table/post-table";
 import Pagination from "@/components/common/pagination";
-import PostForm from "@/components/private/form/post-form";
 import TableSkeleton from "@/components/private/table/table-skeleton";
 import { motion, AnimatePresence } from "framer-motion";
-const Posts = () => {
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const [isContentModalOpen, setIsContentModalOpen] = useState(false);
-  const [currentPost, setCurrentPost] = useState(null);
-  const [postTypes, setPostTypes] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [isTableLoading, setIsTableLoading] = useState(false);
+import { EditModal } from "@/components/common/edit-modal";
+import PostForm from "@/components/private/form/post-form";
+import { PostContext } from "@/context/post-context";
 
-  const [formState, setFormState] = useState({
-    title: "",
-    content: "",
-    thumbnailFile: null,
-    thumbnailUrl: "",
-    status: "PRIVATE",
-    publishedAt: "",
-    type: "",
-  });
+export default function Posts() {
+  const {
+    posts,
+    prevPosts,
+    postTypes,
+    currentPost,
+    formState,
+    setFormState,
+    isSheetOpen,
+    setIsSheetOpen,
+    isContentModalOpen,
+    setIsContentModalOpen,
+    isTableLoading,
+    isFormLoading,
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    fetchPosts,
+    handleOpenSheet,
+    handleSubmit,
+    handleToggleActive,
+    handleDelete,
+    searchQuery,
+    setSearchQuery,
+    filterStatus,
+    setFilterStatus,
+    filterTypes,
+    setFilterTypes,
+  } = useContext(PostContext);
 
-  const fetchPosts = async (page = 1) => {
-    setIsTableLoading(true);
-    await handleFetch({
-      apiCall: () => postApi.getAll({ page: page - 1, size: 5 }),
-      setData: (data) => {
-        setPosts(data.content || []);
-        setTotalPages(Number.isInteger(data.totalPages) ? data.totalPages : 1);
-      },
-      setLoading: setIsTableLoading,
-      errorMessage: "Không thể tải bài viết",
-    });
-  };
-
-  const fetchPostTypes = async () => {
-    await handleFetch({
-      apiCall: postApi.getArticleTypes,
-      setData: (data) =>
-        setPostTypes(
-          Array.isArray(data)
-            ? data.map((type) => ({
-                id: type,
-                name: type
-                  .replace("_", " ")
-                  .toLowerCase()
-                  .replace(/\b\w/g, (c) => c.toUpperCase()),
-              }))
-            : []
-        ),
-      setLoading,
-      errorMessage: "Không thể tải loại bài viết",
-    });
-  };
+  // Debounce tất cả các bộ lọc
+  const [debouncedSearch] = useDebounce(searchQuery, 300);
+  const [debouncedStatus] = useDebounce(filterStatus, 300);
+  const [debouncedTypes] = useDebounce(filterTypes, 300);
 
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        await Promise.all([fetchPosts(currentPage), fetchPostTypes()]);
-      } catch (error) {
-        toast.error("Lỗi khi tải dữ liệu: " + error.message);
-      }
-    };
-    loadData();
-  }, [currentPage]);
+    fetchPosts(currentPage, {
+      searchQuery: debouncedSearch,
+      filterStatus: debouncedStatus,
+      filterTypes: debouncedTypes,
+    });
+  }, [
+    fetchPosts,
+    currentPage,
+    debouncedSearch,
+    debouncedStatus,
+    debouncedTypes,
+  ]);
 
   const handleInputChange = (e) => {
     const { id, value, files } = e.target;
@@ -86,35 +78,8 @@ const Posts = () => {
     }));
   };
 
-  const handleSelectType = (value) => {
+  const handleSelectType = (value) =>
     setFormState((prev) => ({ ...prev, type: value }));
-  };
-
-  const handleOpenSheet = (post = null) => {
-    setCurrentPost(post);
-    setFormState(
-      post
-        ? {
-            title: post.title,
-            content: post.content || "",
-            thumbnailFile: null,
-            thumbnailUrl: post.thumbnailUrl || "",
-            status: post.status || "PRIVATE",
-            publishedAt: post.publishedAt || "",
-            type: post.type || "",
-          }
-        : {
-            title: "",
-            content: "",
-            thumbnailFile: null,
-            thumbnailUrl: "",
-            status: "PRIVATE",
-            publishedAt: "",
-            type: "",
-          }
-    );
-    setIsSheetOpen(true);
-  };
 
   const handleStatusToggle = () => {
     const now = new Date().toISOString();
@@ -123,56 +88,6 @@ const Posts = () => {
       status: prev.status === "PRIVATE" ? "PUBLIC" : "PRIVATE",
       publishedAt: prev.status === "PRIVATE" ? now : "",
     }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    const formData = new FormData();
-    formData.append("title", formState.title);
-    formData.append("content", formState.content);
-    formData.append("status", formState.status);
-    formData.append("publishedAt", formState.publishedAt);
-    formData.append("type", formState.type);
-    if (formState.thumbnailFile)
-      formData.append("thumbnail", formState.thumbnailFile);
-
-    try {
-      const response = currentPost
-        ? await postApi.update(currentPost.id, formData)
-        : await postApi.create(formData);
-
-      if (response.success) {
-        toast.success(response.message);
-        setIsSheetOpen(false);
-        await fetchPosts();
-      } else {
-        toast.error(response.message || "Đã xảy ra lỗi");
-      }
-    } catch (error) {
-      toast.error("Lỗi khi lưu bài viết: " + error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDelete = async (id) => {
-    if (window.confirm("Bạn có chắc muốn xóa bài viết này?")) {
-      setLoading(true);
-      try {
-        const response = await postApi.delete(id);
-        if (response.success) {
-          toast.success(response.message);
-          await fetchPosts();
-        } else {
-          toast.error(response.message);
-        }
-      } catch (error) {
-        toast.error("Lỗi khi xóa bài viết: " + error.message);
-      } finally {
-        setLoading(false);
-      }
-    }
   };
 
   const handleContentSave = (newContent) => {
@@ -189,46 +104,78 @@ const Posts = () => {
           icon={FileText}
           onAdd={() => handleOpenSheet()}
         />
-        <CardContent className="pt-4">
-          <div>
-            <AnimatePresence mode="wait">
-              {isTableLoading && posts.length === 0 ? (
-                <motion.div
-                  key="skeleton"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <TableSkeleton
-                    headers={[
-                      "",
-                      "",
-                      "",
-                      "",
-                      "",
-                    ]}
-                    rows={5}
-                  />
-                </motion.div>
-              ) : (
-                <motion.div
-                  key={`page-${currentPage}`}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <PostTable
-                    posts={posts}
-                    onEdit={handleOpenSheet}
-                    onDelete={handleDelete}
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
+        <CardContent className="pt-0">
+          <div className="flex gap-4 mb-2">
+            <Input
+              placeholder="Tìm kiếm theo tiêu đề..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="max-w-sm"
+            />
+            <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Lọc theo trạng thái" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả trạng thái</SelectItem>
+                <SelectItem value="PUBLIC">Công khai</SelectItem>
+                <SelectItem value="PRIVATE">Riêng tư</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={filterTypes} onValueChange={setFilterTypes}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Lọc theo loại" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả thể loại</SelectItem>
+                {postTypes.map((type) => (
+                  <SelectItem key={type.id} value={type.id}>
+                    {type.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-
+          <AnimatePresence mode="wait">
+            {isTableLoading && prevPosts.length === 0 ? (
+              <motion.div
+                key="skeleton"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <TableSkeleton headers={["", "", "", "", ""]} rows={5} />
+              </motion.div>
+            ) : posts.length === 0 && !isTableLoading ? (
+              <motion.div
+                key="empty"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <p className="text-center text-muted-foreground">
+                  Không tìm thấy bài viết nào. Vui lòng thử điều chỉnh bộ lọc.
+                </p>
+              </motion.div>
+            ) : (
+              <motion.div
+                key={`page-${currentPage}`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.5, ease: "easeInOut" }}
+              >
+                <PostTable
+                  posts={isTableLoading ? prevPosts : posts}
+                  onEdit={handleOpenSheet}
+                  onDelete={handleDelete}
+                  onToggleActive={handleToggleActive}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
@@ -236,7 +183,6 @@ const Posts = () => {
           />
         </CardContent>
       </Card>
-
       <EditModal
         isOpen={isSheetOpen}
         onOpenChange={setIsSheetOpen}
@@ -250,7 +196,7 @@ const Posts = () => {
         <PostForm
           formState={formState}
           postTypes={postTypes}
-          loading={loading}
+          loading={isFormLoading}
           isContentModalOpen={isContentModalOpen}
           setIsContentModalOpen={setIsContentModalOpen}
           handleInputChange={handleInputChange}
@@ -264,6 +210,4 @@ const Posts = () => {
       </EditModal>
     </div>
   );
-};
-
-export default Posts;
+}

@@ -1,28 +1,39 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Link, useLocation, useSearchParams } from "react-router-dom"
-import { postApi } from "@/apis/post-api"
-import { handleFetch } from "@/utils/fetch-helper"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
-import ImageReveal from "@/components/common/image-reveal"
-import PageTransition from "@/components/common/page-transition"
-import { Search, Calendar, Tag, ChevronRight, Grid, List, Clock } from "lucide-react"
-import { typeLabels,mapPathToType } from "@/context/post-type-context";
+import { useState, useEffect } from "react";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
+import { postApi } from "@/apis/post-api";
+import { handleFetch } from "@/utils/fetch-helper";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import ImageReveal from "@/components/common/image-reveal";
+import PageTransition from "@/components/common/page-transition";
+import {
+  Search,
+  Calendar,
+  Tag,
+  ChevronRight,
+  Grid,
+  List,
+  Clock,
+} from "lucide-react";
+import { typeLabels, mapPathToType } from "@/context/post-type-context";
 import Pagination from "@/components/common/pagination";
 
-
 const PostCard = ({ post, viewMode = "grid" }) => {
-  const isGridView = viewMode === "grid"
+  const isGridView = viewMode === "grid";
 
   return (
     <Card className="group hover:shadow-lg transition-all duration-300 overflow-hidden">
       <CardContent className={`p-0 ${isGridView ? "" : "flex"}`}>
-        <div className={`${isGridView ? "aspect-video" : "w-48 flex-shrink-0"} overflow-hidden`}>
+        <div
+          className={`${
+            isGridView ? "aspect-video" : "w-48 flex-shrink-0"
+          } overflow-hidden`}
+        >
           <ImageReveal
             src={post.thumbnailUrl || "/placeholder.svg?height=200&width=300"}
             alt={post.title}
@@ -38,7 +49,9 @@ const PostCard = ({ post, viewMode = "grid" }) => {
             </Badge>
             <Badge variant="outline" className="text-xs">
               <Calendar className="w-3 h-3 mr-1" />
-              {new Date(post.updateAt || post.createdAt).toLocaleDateString("vi-VN")}
+              {new Date(post.updateAt || post.createdAt).toLocaleDateString(
+                "vi-VN"
+              )}
             </Badge>
           </div>
 
@@ -53,7 +66,9 @@ const PostCard = ({ post, viewMode = "grid" }) => {
           <div className="flex items-center justify-between">
             <div className="flex items-center text-xs text-gray-500">
               <Clock className="w-3 h-3 mr-1" />
-              {new Date(post.publishAt || post.createdAt).toLocaleDateString("vi-VN")}
+              {new Date(post.publishAt || post.createdAt).toLocaleDateString(
+                "vi-VN"
+              )}
             </div>
 
             <Link
@@ -67,18 +82,24 @@ const PostCard = ({ post, viewMode = "grid" }) => {
         </div>
       </CardContent>
     </Card>
-  )
-}
+  );
+};
 
 const PostsSkeleton = ({ viewMode = "grid" }) => {
-  const isGridView = viewMode === "grid"
+  const isGridView = viewMode === "grid";
 
   return (
-    <div className={`grid gap-6 ${isGridView ? "md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"}`}>
+    <div
+      className={`grid gap-6 ${
+        isGridView ? "md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"
+      }`}
+    >
       {Array.from({ length: 6 }).map((_, index) => (
         <Card key={index} className="overflow-hidden">
           <CardContent className={`p-0 ${isGridView ? "" : "flex"}`}>
-            <Skeleton className={`${isGridView ? "aspect-video w-full" : "w-48 h-32"}`} />
+            <Skeleton
+              className={`${isGridView ? "aspect-video w-full" : "w-48 h-32"}`}
+            />
             <div className={`p-6 ${isGridView ? "" : "flex-1"}`}>
               <div className="flex gap-2 mb-3">
                 <Skeleton className="h-5 w-20" />
@@ -97,52 +118,57 @@ const PostsSkeleton = ({ viewMode = "grid" }) => {
         </Card>
       ))}
     </div>
-  )
-}
+  );
+};
 
 const PostsPage = ({ type: propType }) => {
-  const location = useLocation()
-  const [searchParams, setSearchParams] = useSearchParams()
-  const [posts, setPosts] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "")
-  const [viewMode, setViewMode] = useState("grid")
-  const [currentPage, setCurrentPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
+  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState(
+    searchParams.get("search") || ""
+  );
+  const [viewMode, setViewMode] = useState("grid");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const type = mapPathToType[location.pathname] || "NEWS"
-  const pageTitle = typeLabels[type] || "Bài viết"
+  const type = mapPathToType[location.pathname] || "NEWS";
+  const pageTitle = typeLabels[type] || "Bài viết";
 
   useEffect(() => {
-    fetchPosts()
-    console.log(posts,type)
-  }, [type, currentPage, searchTerm])
+    fetchPosts();
+    console.log(posts, type);
+  }, [type, currentPage, searchTerm]);
 
   const fetchPosts = async () => {
-    setLoading(true)
+    setLoading(true);
     await handleFetch({
       apiCall: () =>
         postApi.getByType(type, {
-          page: currentPage-1,
+          page: currentPage - 1,
           size: 8,
           search: searchTerm,
         }),
       setData: (data) => {
-        console.log("DATA FROM API:", data)
-        setPosts(Array.isArray(data?.content) ? data.content : [])
-        setTotalPages(Number.isInteger(data?.totalPages) ? data.totalPages : 1)
+        console.log("DATA FROM API:", data);
+        const publicPosts = (data?.content || []).filter(
+          (post) => post.status === "PUBLIC"
+        );
+        setPosts(publicPosts);
+        setTotalPages(Number.isInteger(data?.totalPages) ? data.totalPages : 1);
       },
       setLoading,
       errorMessage: "Không thể tải danh sách bài viết",
-    })
-  }
+    });
+  };
 
   const handleSearch = (e) => {
-    e.preventDefault()
-    setCurrentPage(1)
-    setSearchParams(searchTerm ? { search: searchTerm } : {})
-    fetchPosts()
-  }
+    e.preventDefault();
+    setCurrentPage(1);
+    setSearchParams(searchTerm ? { search: searchTerm } : {});
+    fetchPosts();
+  };
 
   return (
     <PageTransition>
@@ -161,8 +187,12 @@ const PostsPage = ({ type: propType }) => {
 
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">{pageTitle}</h1>
-                <p className="text-gray-600">Cập nhật thông tin mới nhất từ Bệnh viện 1A</p>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                  {pageTitle}
+                </h1>
+                <p className="text-gray-600">
+                  Cập nhật thông tin mới nhất từ Bệnh viện 1A
+                </p>
               </div>
 
               {/* Search & Controls */}
@@ -184,7 +214,7 @@ const PostsPage = ({ type: propType }) => {
                   <Button
                     variant={viewMode === "grid" ? "default" : "ghost"}
                     size="sm"
-                    className={viewMode === "grid"? "bg-blue-600" : ""}
+                    className={viewMode === "grid" ? "bg-blue-600" : ""}
                     onClick={() => setViewMode("grid")}
                   >
                     <Grid className="w-4 h-4" />
@@ -193,7 +223,7 @@ const PostsPage = ({ type: propType }) => {
                     variant={viewMode === "list" ? "default" : "ghost"}
                     size="sm"
                     onClick={() => setViewMode("list")}
-                    className={viewMode === "list"? "bg-blue-600" : ""}
+                    className={viewMode === "list" ? "bg-blue-600" : ""}
                   >
                     <List className="w-4 h-4" />
                   </Button>
@@ -209,7 +239,13 @@ const PostsPage = ({ type: propType }) => {
             <PostsSkeleton viewMode={viewMode} />
           ) : posts.length > 0 ? (
             <>
-              <div className={`grid gap-6 ${viewMode === "grid" ? "md:grid-cols-2 lg:grid-cols-4" : "grid-cols-1"}`}>
+              <div
+                className={`grid gap-6 ${
+                  viewMode === "grid"
+                    ? "md:grid-cols-2 lg:grid-cols-4"
+                    : "grid-cols-1"
+                }`}
+              >
                 {posts.map((post) => (
                   <PostCard key={post.id} post={post} viewMode={viewMode} />
                 ))}
@@ -227,7 +263,9 @@ const PostsPage = ({ type: propType }) => {
               <div className="text-gray-400 mb-4">
                 <Search className="w-16 h-16 mx-auto" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Không tìm thấy bài viết</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Không tìm thấy bài viết
+              </h3>
               <p className="text-gray-600">
                 {searchTerm
                   ? `Không có bài viết nào phù hợp với "${searchTerm}"`
@@ -238,7 +276,7 @@ const PostsPage = ({ type: propType }) => {
         </div>
       </div>
     </PageTransition>
-  )
-}
+  );
+};
 
-export default PostsPage
+export default PostsPage;

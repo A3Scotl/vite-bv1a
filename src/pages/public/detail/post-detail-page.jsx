@@ -28,6 +28,7 @@ import {
   ChevronLeft,
   Eye,
 } from "lucide-react";
+import BreadCrumb from "../../../components/public/bread-crumb";
 
 const PostDetailSkeleton = () => (
   <div className="min-h-screen bg-white-50">
@@ -174,7 +175,7 @@ const FeaturedPostsCarousel = ({ posts }) => {
                   </Badge>
                   <span className="text-xs text-gray-500">
                     {new Date(
-                      post.publishAt || post.createdAt
+                      post.createdAt
                     ).toLocaleDateString("vi-VN")}
                   </span>
                 </div>
@@ -287,21 +288,7 @@ const PostDetailPage = () => {
     <PageTransition>
       <div className="min-h-screen bg-white">
         {/* Breadcrumb */}
-        <div className="bg-white border-b">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
-              <Link to="/" className="hover:text-blue-600 transition-colors">
-                Trang chủ
-              </Link>
-              <ChevronRight className="w-4 h-4" />
-              <Link to={resolvedTypeUrl}>{resolvedTypeLabel}</Link>
-
-
-              <ChevronRight className="w-4 h-4" />
-              <span className="text-gray-900 line-clamp-1">{post.title}</span>
-            </div>
-          </div>
-        </div>
+        <BreadCrumb slug={resolvedTypeUrl} listName={resolvedTypeLabel} detailName={post.title}/>
 
         {/* Main Content */}
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

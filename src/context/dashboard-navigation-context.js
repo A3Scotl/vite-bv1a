@@ -7,6 +7,7 @@ import {
   Building2,
   FileText,
   BarChart,
+  Settings,
 } from "lucide-react"
 
 export const mainMenuItems = [
@@ -16,44 +17,36 @@ export const mainMenuItems = [
     icon: LayoutDashboard,
   },
   {
+    title: "Posts",
+    url: "/dashboard/posts",
+    icon: FileText,
+
+  },
+
+  {
     title: "Appointments",
     url: "/dashboard/appointment",
     icon: ClipboardList,
-    badge: "12",
   },
   {
     title: "Doctors",
     url: "/dashboard/doctors",
     icon: User,
-    badge: "3",
   },
   {
     title: "Departments",
     url: "/dashboard/departments",
     icon: Building2,
   },
-  {
-    title: "Posts",
-    icon: FileText,
-    children: [
-      {
-        title: "Introduce Post",
-        url: "/dashboard/posts/single",
-      },
-      {
-        title: "Other Post",
-        url: "/dashboard/posts",
-      },
-    ],
-  },
+
   {
     title: "Statistics",
     url: "/dashboard/statistics",
     icon: BarChart,
   },
-    {
+  {
     title: "Settings",
     url: "/dashboard/settings",
-    icon: BarChart,
+    icon: Settings,
   },
 ]

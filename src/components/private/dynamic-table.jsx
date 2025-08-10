@@ -1,4 +1,17 @@
-import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+} from "@/components/ui/table";
+import {
+  Input
+} from "@/components/ui/input";
+import {
+  Select
+} from "@/components/ui/select";
 import React from "react";
 
 /**
@@ -13,43 +26,44 @@ import React from "react";
  */
 const DynamicTable = ({ headers, data, renderRow, emptyMessage, colSpan }) => {
   return (
-    <Table className="transition-all duration-300 ease-in-out" >
-      <TableHeader>
-        <TableRow>
-          {headers.map((header, index) => (
-            <TableHead
-              key={index}
-              className={`transition-all duration-300 ease-in-out ${
-                index === headers.length - 1 ? "text-right" : ""
-              }`}
-            >
-              {header}
-            </TableHead>
-          ))}
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {data.length ? (
-          data.map((item, index) =>
-            React.cloneElement(renderRow(item, index), {
-              className:
-                "transition-all duration-300 ease-in-out",
-            })
-          )
-        ) : (
+    <div>
+
+        <Table className="transition-all duration-300 ease-in-out">
+        <TableHeader>
           <TableRow>
-            <TableCell
-              colSpan={colSpan}
-              className="h-24 text-center transition-all duration-300 ease-in-out"
-            >
-              {emptyMessage}
-            </TableCell>
+            {headers.map((header, index) => (
+              <TableHead
+                key={index}
+                className={`transition-all duration-300 ease-in-out ${
+                  index === headers.length - 1 ? "text-right" : ""
+                }`}
+              >
+                {header}
+              </TableHead>
+            ))}
           </TableRow>
-        )}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {data.length ? (
+            data.map((item, index) =>
+              React.cloneElement(renderRow(item, index), {
+                className: "transition-all duration-300 ease-in-out",
+              })
+            )
+          ) : (
+            <TableRow>
+              <TableCell
+                colSpan={colSpan}
+                className="h-24 text-center transition-all duration-300 ease-in-out"
+              >
+                {emptyMessage}
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </div>
   );
 };
-
 
 export default DynamicTable;

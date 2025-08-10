@@ -1,137 +1,153 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { ChevronLeft, ChevronRight, FileText, Calendar } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { postApi } from "@/apis/post-api"
-import { handleFetch } from "@/utils/fetch-helper"
-import { Link } from "react-router-dom"
+import { useState, useEffect } from "react";
+import { FileText, Calendar, Eye } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { postApi } from "@/apis/post-api";
+import { handleFetch } from "@/utils/fetch-helper";
+import { Link } from "react-router-dom";
+
+// Skeleton component
+const PostSkeleton = () => (
+  <Card className="overflow-hidden animate-pulse">
+    <div className="aspect-video bg-gray-200" />
+    <CardContent className="p-4 space-y-3">
+      <div className="h-4 bg-gray-200 rounded w-1/2" />
+      <div className="h-3 bg-gray-200 rounded w-full" />
+      <div className="h-3 bg-gray-200 rounded w-3/4" />
+    </CardContent>
+  </Card>
+);
 
 const PostsSection = () => {
-  const [posts, setPosts] = useState([])
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [itemsPerView, setItemsPerView] = useState(3)
+  const [posts, setPosts] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [itemsPerView, setItemsPerView] = useState(3);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchPosts()
-    handleResize()
-    window.addEventListener("resize", handleResize)
-    return () => window.removeEventListener("resize", handleResize)
-  }, [])
+    fetchPosts();
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const fetchPosts = () => {
+    setLoading(true);
     handleFetch({
       apiCall: postApi.getAllActive,
-      setData:(data)=>{setPosts(data?.content)} ,
-    })
-  }
+      setData: (data) => {
+        setPosts(data?.content || []);
+        setLoading(false);
+      },
+    });
+  };
 
   const handleResize = () => {
     if (window.innerWidth < 768) {
-      setItemsPerView(1)
+      setItemsPerView(1);
     } else if (window.innerWidth < 1024) {
-      setItemsPerView(3)
+      setItemsPerView(3);
     } else {
-      setItemsPerView(4)
+      setItemsPerView(4);
     }
-  }
+  };
 
-  // Lấy 10 bài viết đầu tiên
-  const topPosts = posts.slice(0, 10)
-  const visiblePosts = topPosts.slice(currentIndex, currentIndex + itemsPerView)
+  const topPosts = [...posts]
+    .sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0))
+    .slice(0, 8);
+  const visiblePosts = topPosts.slice(
+    currentIndex,
+    currentIndex + itemsPerView
+  );
 
   const formatDate = (dateString) => {
-    if (!dateString) return ""
-    return new Date(dateString).toLocaleDateString("vi-VN")
-  }
+    if (!dateString) return "";
+    return new Date(dateString).toLocaleDateString("vi-VN");
+  };
 
   return (
     <section className="py-16 bg-gray-50">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Tin tức & Bài viết</h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Cập nhật những thông tin y tế mới nhất và kiến thức sức khỏe hữu ích
-          </p>
+      <div className="text-center mb-12">
+        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          Tin tức & Bài viết
+        </h2>
+        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          Cập nhật những thông tin y tế mới nhất và kiến thức sức khỏe hữu ích
+        </p>
+      </div>
+      <div className="grid grid-cols-[35%_65%] gap-6 items-stretch">
+        {/* Cột trái - 1 bài lớn */}
+        <div className="border rounded-xl overflow-hidden hover:shadow-lg transition-shadow flex flex-col bg-white">
+          {loading ? (
+            <PostSkeleton />
+          ) : topPosts[0] ? (
+            <Link
+              to={`/bai-viet/${topPosts[0].slug}`}
+              className="flex flex-col h-full"
+            >
+              <img
+                src={topPosts[0].thumbnailUrl}
+                alt={topPosts[0].title}
+                className="w-full h-48 object-cover"
+              />
+              <div className="p-4 flex-1 flex flex-col">
+                <h2 className="text-base font-bold mb-2 line-clamp-2 hover:text-blue-600">
+                  {topPosts[0].title}
+                </h2>
+                <p className="text-sm text-gray-600 line-clamp-4 flex-1">
+                  {topPosts[0].content
+                    ?.replace(/<[^>]*>/g, "")
+                    .substring(0, 120)}
+                  ...
+                </p>
+              </div>
+            </Link>
+          ) : null}
         </div>
 
-        <div className="relative">
-          {/* Posts Grid */}
-          <div className="grid  grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-2">
-            {visiblePosts.map((post) => (
-              <Card key={post.id} className="group hover:shadow-lg transition-shadow overflow-hidden">
-                <div className="aspect-video bg-gray-100 overflow-hidden">
-                  {post.thumbnailUrl ? (
-                    <img
-                      src={post.thumbnailUrl || "/placeholder.svg"}
-                      alt={post.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                      <FileText className="w-12 h-12 text-gray-400" />
-                    </div>
-                  )}
-                </div>
-
-                <CardContent className="px-4 py-0">
-                  <div className="flex items-center text-sm text-gray-500 mb-3">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    {formatDate(post.publishedAt || post.createdAt)}
-                  </div>
-
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors">
-                    {post.title}
-                  </h3>
-
-                  <div
-                    className="text-gray-600 text-sm line-clamp-3 mb-4"
-                    dangerouslySetInnerHTML={{
-                      __html: post.content?.replace(/<[^>]*>/g, "").substring(0, 150) + "...",
-                    }}
+        {/* Cột phải - nhiều bài nhỏ */}
+        <div className="space-y-4 bg-white">
+          {loading
+            ? Array.from({ length: 4 }).map((_, i) => <PostSkeleton key={i} />)
+            : topPosts.slice(1, 5).map((post) => (
+                <div
+                  key={post.id}
+                  className="flex items-start space-x-3 border-b pb-3"
+                >
+                  <img
+                    src={post.thumbnailUrl}
+                    alt={post.title}
+                    className="w-24 h-16 object-cover rounded"
                   />
-
-                  <Link to={`/bai-viet/${post.slug}`}>
-                    <Button variant="outline" className="w-full bg-transparent">
-                      Đọc thêm
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {/* Navigation Buttons */}
-          <div className="flex justify-center items-center pt-4">
-          
-
-            <div className="flex space-x-2">
-              {Array.from({ length: Math.ceil(topPosts.length / itemsPerView) }).map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentIndex(index * itemsPerView)}
-                  className={`w-3 h-3 rounded-full transition-colors ${
-                    Math.floor(currentIndex / itemsPerView) === index ? "bg-blue-600" : "bg-gray-300"
-                  }`}
-                />
+                  <div className="flex-1">
+                    <Link
+                      to={`/bai-viet/${post.slug}`}
+                      className="text-blue-600 font-medium hover:underline line-clamp-2"
+                    >
+                      {post.title}
+                    </Link>
+                    <p className="text-sm text-gray-600 line-clamp-2 mt-1">
+                      {post.content?.replace(/<[^>]*>/g, "").substring(0, 90)}
+                      ...
+                    </p>
+                  </div>
+                </div>
               ))}
-            </div>
-
-           
-          </div>
-          {/* View All Button */}
-          <div className="text-center mt-8">
-            <Link to="/tin-tuc-hoat-dong">
-              <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
-                Xem tất cả bài viết
-              </Button>
-            </Link>
-          </div>
         </div>
       </div>
-    </section>
-  )
-}
 
-export default PostsSection
+      {/* Nút xem tất cả */}
+      <div className="text-center mt-8">
+        <Link to="/tin-tuc-hoat-dong">
+          <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+            Xem thêm tất cả tin tức
+          </Button>
+        </Link>
+      </div>
+    </section>
+  );
+};
+
+export default PostsSection;
